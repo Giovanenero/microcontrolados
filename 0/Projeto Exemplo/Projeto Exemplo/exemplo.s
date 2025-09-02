@@ -82,26 +82,59 @@ loopInternoNext
 fim
 	
 	; inicializa as variáveis
-	LDR R10, =memInicio
-	LDRH R0, [R10]
-	MOV R3, #1
-	MOV R4, #4					; razao
-	LDR	R11, =0x20000608
-	STRH R0, [R11], #20			; primeiro termo
-	STRH R0, [R11], #20			; primeiro termo auxiliar
-	STRH R3, [R11], #20			; tamanho da maior sequencia
-	STRH R3, [R11], #20			; tamanho da maior sequencia auxiliar
-	STRH R4, [R11], #20			; armazena a razao da maior sequencia
-	LDR R0, =memInicio			; ponteiro do inicio da lista
-	MOV R1, R0					; ponteiro do proximo elemento da lista
-	B inicio
+	;MOV R4, #4					; razao
+	;LDR R0, =memInicio			; ponteiro do inicio da lista
+	;MOV R1, R0					; ponteiro do proximo elemento da lista
+	;B inicio
+
+
+    LDR R5, =memInicio       ; início da lista (valores originais)
+    LDR R6, =memInicio       ; usado depois para j
+    LDR R9, =0x20000500       ; início da lista das razões (onde salvar)
+
+loopExterno2
+    LDRH R2, [R5]             ; a[i]
+    CMP R2, #0
+    BEQ inicioPG                 ;
+
+    ADD R6, R5, #2            ; j = i+1
+
+loopInterno2
+    LDRH R3, [R6]             ; a[j]
+    CMP R3, #0
+    BEQ proxI                 ; fim da linha, passa pro próximo i
+
+    ; calcula razão r = a[j] / a[i], se exata
+    UDIV R0, R3, R2           ; r = a[j] / a[i]
+    MLS  R1, R0, R2, R3       ; resto = a[j] - r*a[i]
+    CMP  R1, #0
+    BNE  proxJ                ; não é inteiro ? ignora
+
+    ; se resto == 0, então r é válido
+    STRH R0, [R9]             ; salva razão
+    ADD  R9, R9, #2           ; avança ponteiro de razões
+	
+
+proxJ
+    ADD R6, R6, #2
+    B loopInterno2
+
+proxI
+    ADD R5, R5, #2
+    B loopExterno2
+
 
 atualizaPilha
 	PUSH {R11}
 	B inicio
 	;B atualizarSeqAux
-	
-	
+
+
+inicioPG
+	MOV R4, #4					; razao
+	LDR R0, =memInicio			; ponteiro do inicio da lista
+	MOV R1, R0					; ponteiro do proximo elemento da lista
+	B inicio
 
 inicio
 	LDRH R10, [R0]				; conteudo de R10
@@ -116,7 +149,6 @@ inicio
 	CMP R4, #0					; se R4 == 0, ent é inteiro
 	BEQ verificaRazao
 	B inicio
-	;CMP R4, #4
 
 verificaRazao
 	CMP R3, #4

@@ -70,9 +70,9 @@ ARM Macro Assembler    Page 2
 
 
    42 00000000         
-   43 00000000 F8DF A0D4       LDR              R10, =memInicio ; ponteiro do l
+   43 00000000 F8DF A0E8       LDR              R10, =memInicio ; ponteiro do l
                                                             oop externo
-   44 00000004 F8DF C0D4       LDR              R12, =memFim
+   44 00000004 F8DF C0E8       LDR              R12, =memFim
    45 00000008 F8BC 2000       LDRH             R2, [R12]
    46 0000000C F1AA 0A02       SUB              R10, R10, #2
    47 00000010 E008            B                loopExterno
@@ -113,124 +113,169 @@ ARM Macro Assembler    Page 2
    82 0000004E         fim
    83 0000004E         
    84 0000004E         ; inicializa as variáveis
-   85 0000004E F8DF A088       LDR              R10, =memInicio
-   86 00000052 F8BA 0000       LDRH             R0, [R10]
-   87 00000056 F04F 0301       MOV              R3, #1
-   88 0000005A F04F 0404       MOV              R4, #4      ; razao
-   89 0000005E F8DF B080       LDR              R11, =0x20000608
-   90 00000062 F82B 0B14       STRH             R0, [R11], #20 ; primeiro termo
-                                                            
-   91 00000066 F82B 0B14       STRH             R0, [R11], #20 ; primeiro termo
-                                                             auxiliar
-   92 0000006A F82B 3B14       STRH             R3, [R11], #20 ; tamanho da mai
-                                                            or sequencia
-   93 0000006E F82B 3B14       STRH             R3, [R11], #20 ; tamanho da mai
-                                                            or sequencia auxili
-                                                            ar
-   94 00000072 F82B 4B14       STRH             R4, [R11], #20 ; armazena a raz
+   85 0000004E         ;MOV R4, #4     ; razao
+   86 0000004E         ;LDR R0, =memInicio   ; ponteiro do inicio da lista
+   87 0000004E         ;MOV R1, R0     ; ponteiro do proximo elemento da lista
+   88 0000004E         ;B inicio
+   89 0000004E         
+   90 0000004E         
+   91 0000004E 4D27            LDR              R5, =memInicio ; início da list
+                                                            a (valores originai
+                                                            s)
+   92 00000050 4E26            LDR              R6, =memInicio ; usado depois p
+                                                            ara j
+   93 00000052 F8DF 90A0       LDR              R9, =0x20000500 ; início da lis
+                                                            ta das razões (onde
+                                                             salvar)
+   94 00000056         
 
 
 
 ARM Macro Assembler    Page 3 
 
 
-                                                            ao da maior sequenc
-                                                            ia
-   95 00000076 4818            LDR              R0, =memInicio ; ponteiro do in
+   95 00000056         loopExterno2
+   96 00000056 882A            LDRH             R2, [R5]    ; a[i]
+   97 00000058 2A00            CMP              R2, #0
+   98 0000005A D017            BEQ              inicioPG    ;
+   99 0000005C         
+  100 0000005C F105 0602       ADD              R6, R5, #2  ; j = i+1
+  101 00000060         
+  102 00000060         loopInterno2
+  103 00000060 8833            LDRH             R3, [R6]    ; a[j]
+  104 00000062 2B00            CMP              R3, #0
+  105 00000064 D00C            BEQ              proxI       ; fim da linha, pas
+                                                            sa pro próximo i
+  106 00000066         
+  107 00000066         ; calcula razão r = a[j] / a[i], se exata
+  108 00000066 FBB3 F0F2       UDIV             R0, R3, R2  ; r = a[j] / a[i]
+  109 0000006A FB00 3112       MLS              R1, R0, R2, R3 ; resto = a[j] -
+                                                             r*a[i]
+  110 0000006E 2900            CMP              R1, #0
+  111 00000070 D103            BNE              proxJ       ; não é inteiro ? i
+                                                            gnora
+  112 00000072         
+  113 00000072         ; se resto == 0, então r é válido
+  114 00000072 F8A9 0000       STRH             R0, [R9]    ; salva razão
+  115 00000076 F109 0902       ADD              R9, R9, #2  ; avança ponteiro d
+                                                            e razões
+  116 0000007A         
+  117 0000007A         ; razao
+  118 0000007A         ;MOV R4, R0
+  119 0000007A         ;LDR R0, =memInicio
+  120 0000007A         ;MOV R1, R0
+  121 0000007A         ;B inicio
+  122 0000007A         
+  123 0000007A         proxJ
+  124 0000007A F106 0602       ADD              R6, R6, #2
+  125 0000007E E7EF            B                loopInterno2
+  126 00000080         
+  127 00000080         proxI
+  128 00000080 F105 0502       ADD              R5, R5, #2
+  129 00000084 E7E7            B                loopExterno2
+  130 00000086         
+  131 00000086         
+  132 00000086         atualizaPilha
+  133 00000086 F84D BD04       PUSH             {R11}
+  134 0000008A E004            B                inicio
+  135 0000008C         ;B atualizarSeqAux
+  136 0000008C         
+  137 0000008C         
+  138 0000008C         inicioPG
+  139 0000008C F04F 0404       MOV              R4, #4      ; razao
+  140 00000090 4816            LDR              R0, =memInicio ; ponteiro do in
                                                             icio da lista
-   96 00000078 4601            MOV              R1, R0      ; ponteiro do proxi
+  141 00000092 4601            MOV              R1, R0      ; ponteiro do proxi
                                                             mo elemento da list
                                                             a
-   97 0000007A E002            B                inicio
-   98 0000007C         
-   99 0000007C         atualizaPilha
-  100 0000007C F84D BD04       PUSH             {R11}
-  101 00000080 E7FF            B                inicio
-  102 00000082         ;B atualizarSeqAux
-  103 00000082         
-  104 00000082         
-  105 00000082         
-  106 00000082         inicio
-  107 00000082 F8B0 A000       LDRH             R10, [R0]   ; conteudo de R10
-  108 00000086 F101 0102       ADD              R1, R1, #2  ; atualiza o pontei
-                                                            ro de R1 
-  109 0000008A F8B1 B000       LDRH             R11, [R1]
-  110 0000008E F1BB 0F00       CMP              R11, #0
-  111 00000092 D009            BEQ              atualizaPonteiroIncio
-  112 00000094         
-  113 00000094         
-  114 00000094 FBBB F3FA       UDIV             R3, R11, R10
-  115 00000098 FB03 B41A       MLS              R4, R3, R10, R11
-  116 0000009C 2C00            CMP              R4, #0      ; se R4 == 0, ent é
-                                                             inteiro
-  117 0000009E D000            BEQ              verificaRazao
-  118 000000A0 E7EF            B                inicio
-  119 000000A2         ;CMP R4, #4
-  120 000000A2         
-  121 000000A2         verificaRazao
-  122 000000A2 2B04            CMP              R3, #4
-  123 000000A4 D0EA            BEQ              atualizaPilha
-  124 000000A6 E7EC            B                inicio
-  125 000000A8         
-  126 000000A8         atualizaPonteiroIncio
-  127 000000A8 F100 0002       ADD              R0, R0, #2
-  128 000000AC 4601            MOV              R1, R0
-  129 000000AE F8B0 A000       LDRH             R10, [R0]
-  130 000000B2 F1BA 0F00       CMP              R10, #0
-  131 000000B6 D000            BEQ              fimPG
-  132 000000B8 E7E3            B                inicio
-  133 000000BA         
-  134 000000BA         fimPG
-  135 000000BA         
-  136 000000BA 4808            LDR              R0, =memFim
-  137 000000BC 4F06            LDR              R7, =memInicio
-  138 000000BE F107 0704       ADD              R7, R7, #4
-  139 000000C2 F1A0 0002       SUB              R0, R0, #2
-  140 000000C6         
-  141 000000C6         salvarPG
-  142 000000C6         
-  143 000000C6 BC02            POP              {R1}
-  144 000000C8         
-  145 000000C8 45BD            CMP              R13, R7
-  146 000000CA D003            BEQ              acabou
+  142 00000094 E7FF            B                inicio
+  143 00000096         
+  144 00000096         inicio
+  145 00000096 F8B0 A000       LDRH             R10, [R0]   ; conteudo de R10
+  146 0000009A F101 0102       ADD              R1, R1, #2  ; atualiza o pontei
 
 
 
 ARM Macro Assembler    Page 4 
 
 
-  147 000000CC         
-  148 000000CC F100 0002       ADD              R0, R0, #2
-  149 000000D0 8001            STRH             R1, [R0]
-  150 000000D2 E7F8            B                salvarPG
-  151 000000D4         
-  152 000000D4         acabou
-  153 000000D4         
-  154 000000D4         
-  155 000000D4         
-  156 000000D4         
-  157 000000D4         
-  158 000000D4         
-  159 000000D4         
-  160 000000D4         ; R10 = elemento atual (a[i])
-  161 000000D4         ; R11 = elemento seguinte (a[i+1])
-  162 000000D4         
-  163 000000D4         ;LDRH R0, [R11]        ; b = a[i+1]
-  164 000000D4         ;LDRH R1, [R10]        ; a = a[i]
-  165 000000D4         ;UDIV R3, R0, R1       ; r = b / a
-  166 000000D4         ;MLS  R4, R3, R1, R0   ; resto = b - r*a
-  167 000000D4         ;CMP  R4, #0
-  168 000000D4         ;BNE proximoDivisor    ; se resto != 0, não é divisor vá
+                                                            ro de R1 
+  147 0000009E F8B1 B000       LDRH             R11, [R1]
+  148 000000A2 F1BB 0F00       CMP              R11, #0
+  149 000000A6 D009            BEQ              atualizaPonteiroIncio
+  150 000000A8         
+  151 000000A8         
+  152 000000A8 FBBB F3FA       UDIV             R3, R11, R10
+  153 000000AC FB03 B41A       MLS              R4, R3, R10, R11
+  154 000000B0 2C00            CMP              R4, #0      ; se R4 == 0, ent é
+                                                             inteiro
+  155 000000B2 D000            BEQ              verificaRazao
+  156 000000B4 E7EF            B                inicio
+  157 000000B6         
+  158 000000B6         verificaRazao
+  159 000000B6 2B04            CMP              R3, #4
+  160 000000B8 D0E5            BEQ              atualizaPilha
+  161 000000BA E7EC            B                inicio
+  162 000000BC         
+  163 000000BC         atualizaPonteiroIncio
+  164 000000BC F100 0002       ADD              R0, R0, #2
+  165 000000C0 4601            MOV              R1, R0
+  166 000000C2 F8B0 A000       LDRH             R10, [R0]
+  167 000000C6 F1BA 0F00       CMP              R10, #0
+  168 000000CA D000            BEQ              fimPG
+  169 000000CC E7E3            B                inicio
+  170 000000CE         
+  171 000000CE         fimPG
+  172 000000CE         
+  173 000000CE 4808            LDR              R0, =memFim
+  174 000000D0 4F06            LDR              R7, =memInicio
+  175 000000D2 F107 0704       ADD              R7, R7, #4
+  176 000000D6 F1A0 0002       SUB              R0, R0, #2
+  177 000000DA         
+  178 000000DA         salvarPG
+  179 000000DA         
+  180 000000DA BC02            POP              {R1}
+  181 000000DC         
+  182 000000DC 45BD            CMP              R13, R7
+  183 000000DE D003            BEQ              acabou
+  184 000000E0         
+  185 000000E0 F100 0002       ADD              R0, R0, #2
+  186 000000E4 8001            STRH             R1, [R0]
+  187 000000E6 E7F8            B                salvarPG
+  188 000000E8         
+  189 000000E8         acabou
+  190 000000E8         
+  191 000000E8         
+  192 000000E8         
+  193 000000E8         
+  194 000000E8         
+  195 000000E8         
+  196 000000E8         
+  197 000000E8         ; R10 = elemento atual (a[i])
+  198 000000E8         ; R11 = elemento seguinte (a[i+1])
+  199 000000E8         
+  200 000000E8         ;LDRH R0, [R11]        ; b = a[i+1]
+  201 000000E8         ;LDRH R1, [R10]        ; a = a[i]
+  202 000000E8         ;UDIV R3, R0, R1       ; r = b / a
+  203 000000E8         ;MLS  R4, R3, R1, R0   ; resto = b - r*a
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  204 000000E8         ;CMP  R4, #0
+  205 000000E8         ;BNE proximoDivisor    ; se resto != 0, não é divisor vá
                        lido
-  169 000000D4         
-  170 000000D4 BF00            NOP
-  171 000000D6 00 00           ALIGN                        ; garante que o fim
+  206 000000E8         
+  207 000000E8 BF00            NOP
+  208 000000EA 00 00           ALIGN                        ; garante que o fim
                                                              da seção está alin
                                                             hada 
-  172 000000D8                 END                          ; fim do arquivo
+  209 000000EC                 END                          ; fim do arquivo
               20000400 
               20000600 
-              20000608 
+              20000500 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
 interwork --depend=.\exemplo.d -o.\exemplo.o -IC:\Users\Usuário\AppData\Local\A
 rm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129 --predefine="__EVAL SETA 1"
@@ -273,13 +318,13 @@ Symbol: Start
    Uses
       At line 27 in file exemplo.s
 Comment: Start used once
-acabou 000000D4
+acabou 000000E8
 
 Symbol: acabou
    Definitions
-      At line 152 in file exemplo.s
+      At line 189 in file exemplo.s
    Uses
-      At line 146 in file exemplo.s
+      At line 183 in file exemplo.s
 Comment: acabou used once
 atualiza 00000012
 
@@ -289,21 +334,21 @@ Symbol: atualiza
    Uses
       At line 72 in file exemplo.s
 Comment: atualiza used once
-atualizaPilha 0000007C
+atualizaPilha 00000086
 
 Symbol: atualizaPilha
    Definitions
-      At line 99 in file exemplo.s
+      At line 132 in file exemplo.s
    Uses
-      At line 123 in file exemplo.s
+      At line 160 in file exemplo.s
 Comment: atualizaPilha used once
-atualizaPonteiroIncio 000000A8
+atualizaPonteiroIncio 000000BC
 
 Symbol: atualizaPonteiroIncio
    Definitions
-      At line 126 in file exemplo.s
+      At line 163 in file exemplo.s
    Uses
-      At line 111 in file exemplo.s
+      At line 149 in file exemplo.s
 Comment: atualizaPonteiroIncio used once
 fim 0000004E
 
@@ -313,7 +358,7 @@ Symbol: fim
    Uses
       At line 60 in file exemplo.s
 Comment: fim used once
-fimPG 000000BA
+fimPG 000000CE
 
 Symbol: fimPG
 
@@ -323,22 +368,30 @@ ARM Macro Assembler    Page 2 Alphabetic symbol ordering
 Relocatable symbols
 
    Definitions
-      At line 134 in file exemplo.s
+      At line 171 in file exemplo.s
    Uses
-      At line 131 in file exemplo.s
+      At line 168 in file exemplo.s
 Comment: fimPG used once
-inicio 00000082
+inicio 00000096
 
 Symbol: inicio
    Definitions
-      At line 106 in file exemplo.s
+      At line 144 in file exemplo.s
    Uses
-      At line 97 in file exemplo.s
-      At line 101 in file exemplo.s
-      At line 118 in file exemplo.s
-      At line 124 in file exemplo.s
-      At line 132 in file exemplo.s
+      At line 134 in file exemplo.s
+      At line 142 in file exemplo.s
+      At line 156 in file exemplo.s
+      At line 161 in file exemplo.s
+      At line 169 in file exemplo.s
 
+inicioPG 0000008C
+
+Symbol: inicioPG
+   Definitions
+      At line 138 in file exemplo.s
+   Uses
+      At line 98 in file exemplo.s
+Comment: inicioPG used once
 loopExterno 00000024
 
 Symbol: loopExterno
@@ -348,6 +401,14 @@ Symbol: loopExterno
       At line 47 in file exemplo.s
       At line 67 in file exemplo.s
 
+loopExterno2 00000056
+
+Symbol: loopExterno2
+   Definitions
+      At line 95 in file exemplo.s
+   Uses
+      At line 129 in file exemplo.s
+Comment: loopExterno2 used once
 loopInterno 00000034
 
 Symbol: loopInterno
@@ -356,7 +417,21 @@ Symbol: loopInterno
    Uses
       At line 76 in file exemplo.s
 Comment: loopInterno used once
+loopInterno2 00000060
+
+Symbol: loopInterno2
+   Definitions
+      At line 102 in file exemplo.s
+   Uses
+      At line 125 in file exemplo.s
+Comment: loopInterno2 used once
 loopInternoNext 00000048
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
 
 Symbol: loopInternoNext
    Definitions
@@ -364,23 +439,39 @@ Symbol: loopInternoNext
    Uses
       At line 54 in file exemplo.s
 Comment: loopInternoNext used once
-salvarPG 000000C6
+proxI 00000080
+
+Symbol: proxI
+   Definitions
+      At line 127 in file exemplo.s
+   Uses
+      At line 105 in file exemplo.s
+Comment: proxI used once
+proxJ 0000007A
+
+Symbol: proxJ
+   Definitions
+      At line 123 in file exemplo.s
+   Uses
+      At line 111 in file exemplo.s
+Comment: proxJ used once
+salvarPG 000000DA
 
 Symbol: salvarPG
    Definitions
-      At line 141 in file exemplo.s
+      At line 178 in file exemplo.s
    Uses
-      At line 150 in file exemplo.s
+      At line 187 in file exemplo.s
 Comment: salvarPG used once
-verificaRazao 000000A2
+verificaRazao 000000B6
 
 Symbol: verificaRazao
    Definitions
-      At line 121 in file exemplo.s
+      At line 158 in file exemplo.s
    Uses
-      At line 117 in file exemplo.s
+      At line 155 in file exemplo.s
 Comment: verificaRazao used once
-14 symbols
+19 symbols
 
 
 
@@ -394,7 +485,7 @@ Symbol: memFim
       At line 38 in file exemplo.s
    Uses
       At line 44 in file exemplo.s
-      At line 136 in file exemplo.s
+      At line 173 in file exemplo.s
 
 memInicio 20000400
 
@@ -403,9 +494,10 @@ Symbol: memInicio
       At line 37 in file exemplo.s
    Uses
       At line 43 in file exemplo.s
-      At line 85 in file exemplo.s
-      At line 95 in file exemplo.s
-      At line 137 in file exemplo.s
+      At line 91 in file exemplo.s
+      At line 92 in file exemplo.s
+      At line 140 in file exemplo.s
+      At line 174 in file exemplo.s
 
 2 symbols
-353 symbols in table
+358 symbols in table

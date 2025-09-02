@@ -80,97 +80,92 @@ loopInternoNext
 ; ============================================
 
 fim
-
-	LDR R10, =memInicio   ; ponteiro para o início do vetor
-    MOV R6, #0            ; maior tamanho de PG encontrado
-    LDRH R7, [R10]           ; primeiro elemento da maior PG
-    MOV R14, #0           ; razão da maior PG
 	
-loop_inicio
+	; inicializa as variáveis
+	LDR R10, =memInicio
 	LDRH R0, [R10]
-    CMP R0, #0
-    BGE fimPrograma      ; fim do vetor
-    MOV R11, R10          ; ponteiro para o próximo elemento
-   
-proximoDivisor
-	ADD R11, R11, #2
-	LDRH R1, [R11]
-    CMP R1, #0
-	BGE testaPG      ; não há próximo elemento
-    B encontraDivisores
+	MOV R3, #1
+	MOV R4, #4					; razao
+	LDR	R11, =0x20000608
+	STRH R0, [R11], #20			; primeiro termo
+	STRH R0, [R11], #20			; primeiro termo auxiliar
+	STRH R3, [R11], #20			; tamanho da maior sequencia
+	STRH R3, [R11], #20			; tamanho da maior sequencia auxiliar
+	STRH R4, [R11], #20			; armazena a razao da maior sequencia
+	LDR R0, =memInicio			; ponteiro do inicio da lista
+	MOV R1, R0					; ponteiro do proximo elemento da lista
+	B inicio
+
+atualizaPilha
+	PUSH {R11}
+	B inicio
+	;B atualizarSeqAux
 	
-encontraDivisores
+	
+
+inicio
+	LDRH R10, [R0]				; conteudo de R10
+	ADD R1, R1, #2				; atualiza o ponteiro de R1 
+	LDRH R11, [R1]
+	CMP R11, #0
+	BEQ atualizaPonteiroIncio
+	
+	
+	UDIV R3, R11, R10		
+	MLS	R4, R3, R10, R11
+	CMP R4, #0					; se R4 == 0, ent é inteiro
+	BEQ verificaRazao
+	B inicio
+	;CMP R4, #4
+
+verificaRazao
+	CMP R3, #4
+	BEQ atualizaPilha
+	B inicio
+	
+atualizaPonteiroIncio
+	ADD R0, R0, #2
+	MOV R1, R0
+	LDRH R10, [R0]
+	CMP R10, #0
+	BEQ fimPG
+	B inicio
+
+fimPG
+
+	LDR R0, =memFim
+	LDR R7, =memInicio
+	ADD R7, R7, #4
+	SUB R0, R0, #2
+	
+salvarPG
+
+	POP {R1}
+	
+	CMP R13, R7
+	BEQ acabou
+	
+	ADD R0, R0, #2
+	STRH R1, [R0]
+	B salvarPG
+	
+acabou
+	
+	
+	
+
+	
+	
+
 	; R10 = elemento atual (a[i])
     ; R11 = elemento seguinte (a[i+1])
         
-    LDRH R0, [R11]        ; b = a[i+1]
-    LDRH R1, [R10]        ; a = a[i]
-    UDIV R3, R0, R1       ; r = b / a
-    MLS  R4, R3, R1, R0   ; resto = b - r*a
-    CMP  R4, #0
-    BNE proximoDivisor    ; se resto != 0, não é divisor válido
-
-    ; temos razão válida
-    PUSH {R3}             ; salva razão na pilha
-    B proximoDivisor
-
-
-testaPG
-	LDRH R0, [R10]
-	CMP R0, #0
-	BEQ fimPrograma
-	
-	POP {R9}
-	
-loopTestaPG
-
-	MUL R0, R7, R9		; a2 = a1 * q
-	UDIV R1, R1,         ; atual / anterior
-    MLS  R4, R9, R1, R0   ; resto
-	CMP  R4, #0
-	
-
-
-
-testaPg
-	POP {R3}              ; pega a razão candidata
-    MOV R8, #2            ; contador da sequência (2 elementos já considerados)
-	MOV R12, R10          ; ponteiro para o início da sequência
-	ADD R13, R12, #2      		; próximo elemento a verificar
-	
-loopPg
-	CMP R13, R12          ; verifica limite do vetor
-    BGE verificaMaior
-	CMP R13, R12
-    BGE verificaMaior
-
-	LDRH R0, [R13]        ; atual
-    LDRH R1, [R12]        ; anterior
-	UDIV R9, R0, R1       ; atual / anterior
-    MLS  R4, R9, R1, R0   ; resto
-	CMP  R4, #0
-	BNE verificaMaior
-	CMP  R9, R3            ; quociente == razão?
-	BNE verificaMaior
-
-	ADD R8, R8, #1
-    ADD R12, R12, #2
-	ADD R13, R13, #2
-	B loopPg
-	
-verificaMaior
-	CMP R8, R6
-    BLE continuaLoop
-	MOV R6, R8            ; atualiza tamanho da maior sequência
-	LDRH R7, [R10]        ; salva primeiro elemento
-	MOV R14, R3           ; salva a razão
-	
-continua_loop
-	ADD R10, R10, #2      ; avança para o próximo elemento do vetor
-    CMP R10, R12
-	BLT loopInicio
-	
-fimPrograma
+    ;LDRH R0, [R11]        ; b = a[i+1]
+    ;LDRH R1, [R10]        ; a = a[i]
+    ;UDIV R3, R0, R1       ; r = b / a
+    ;MLS  R4, R3, R1, R0   ; resto = b - r*a
+    ;CMP  R4, #0
+    ;BNE proximoDivisor    ; se resto != 0, não é divisor válido
 
 	NOP
     ALIGN                           ; garante que o fim da seção está alinhada 

@@ -1,4 +1,4 @@
 Dependencies for Project 'Exemplo', Target 'Target 1': (DO NOT MODIFY !)
-CompilerVersion: 6160000::V6.16::ARMCLANG
-F (.\exemplo.s)(0x68B61CBC)(--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto -c-gdwarf-4 -Wa,armasm,--pd,"__EVAL SETA 1"-IC:/Users/rafa1/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C129-Wa,armasm,--pd,"__UVISION_VERSION SETA 536" -Wa,armasm,--pd,"TM4C1294NCPDT SETA 1"-o ./exemplo.o)
-F (.\startup.s)(0x68B0AE90)(--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto -c-gdwarf-4 -Wa,armasm,--pd,"__EVAL SETA 1"-IC:/Users/rafa1/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C129-Wa,armasm,--pd,"__UVISION_VERSION SETA 536" -Wa,armasm,--pd,"TM4C1294NCPDT SETA 1"-o ./startup.o)
+CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARMCC
+F (.\exemplo.s)(0x68B66FBF)(--cpu Cortex-M4.fp.sp --pd "__EVAL SETA 1" -g --apcs=interwork -IC:\Users\Usuário\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129--pd "__UVISION_VERSION SETA 536" --pd "TM4C1294NCPDT SETA 1"--list .\exemplo.lst --xref -o .\exemplo.o --depend .\exemplo.d)
+F (.\startup.s)(0x68B61E58)(--cpu Cortex-M4.fp.sp --pd "__EVAL SETA 1" -g --apcs=interwork -IC:\Users\Usuário\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129--pd "__UVISION_VERSION SETA 536" --pd "TM4C1294NCPDT SETA 1"--list .\startup.lst --xref -o .\startup.o --depend .\startup.d)

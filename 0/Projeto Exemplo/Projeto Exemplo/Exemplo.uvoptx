@@ -142,8 +142,8 @@
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
-          <SubType>10</SubType>
-          <ItemText>0x20000380</ItemText>
+          <SubType>266</SubType>
+          <ItemText>0x20000400</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>

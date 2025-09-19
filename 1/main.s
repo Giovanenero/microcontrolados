@@ -52,24 +52,33 @@ Start
 
 MainLoop
 	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R0
+	; SW1 PRESSIONADA = 10 == 0x02
+	; SW2 PRESSIODADA = 01 = 0x01
+	; AMBAS PRESSIONADAS = 00 == 0x00
+	; NENHUMA PRESSIONADA = 11 == 0x03
+	
 Verifica_Nenhuma
-	CMP	R0, #2_00000001			 ;Verifica se nenhuma chave está pressionada
+	CMP	R0, #2_00000011			 ;Verifica se nenhuma chave está pressionada
 	BNE Verifica_SW1			 ;Se o teste viu que tem pelo menos alguma chave pressionada pula
 	MOV R0, #0                   ;Não acender nenhum LED
 	BL PortN_Output			 	 ;Chamar a função para não acender nenhum LED
 	B MainLoop					 ;Se o teste viu que nenhuma chave está pressionada, volta para o laço principal
 Verifica_SW1	
-	CMP R0, #2_00000000			 ;Verifica se somente a chave SW1 está pressionada
+	CMP R0, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
 	BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
-	BL Pisca_LED				 ;Chama a rotina para piscar LED
+;	BL Pisca_LED				 ;Chama a rotina para piscar LED
+	MOV R0, #2_00000011			 ;Setar o parâmetro de entrada da função como o BIT4
+	BL PortN_Output	
+	
 	B MainLoop                   ;Volta para o laço principal
+
 
 ;--------------------------------------------------------------------------------
 ; Função Pisca_LED
 ; Parâmetro de entrada: Não tem
 ; Parâmetro de saída: Não tem
 Pisca_LED
-	MOV R0, #2_10				 ;Setar o parâmetro de entrada da função setando o BIT1
+	MOV R0, #2_11				 ;Setar o parâmetro de entrada da função setando o BIT1
 	PUSH {LR}
 	BL PortN_Output				 ;Chamar a função para acender o LED1
 	MOV R0, #500                ;Chamar a rotina para esperar 0,5s
@@ -79,7 +88,8 @@ Pisca_LED
 	MOV R0, #500                ;Chamar a rotina para esperar 0,5
 	BL SysTick_Wait1ms	
 	POP {LR}
-	BX LR						 ;return
+	BX LR	;return
+	
 
 ; -------------------------------------------------------------------------------------------------------------------------
 ; Fim do Arquivo

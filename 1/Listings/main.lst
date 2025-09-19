@@ -88,80 +88,91 @@ ARM Macro Assembler    Page 2
                                                             que lê o estado das
                                                              chaves e coloca o 
                                                             resultado em R0
-   55 00000010         Verifica_Nenhuma
-   56 00000010 2801            CMP              R0, #2_00000001 ;Verifica se ne
+   55 00000010         ; SW1 PRESSIONADA = 10 == 0x02
+   56 00000010         ; SW2 PRESSIODADA = 01 = 0x01
+   57 00000010         ; AMBAS PRESSIONADAS = 00 == 0x00
+   58 00000010         ; NENHUMA PRESSIONADA = 11 == 0x03
+   59 00000010         
+   60 00000010         Verifica_Nenhuma
+   61 00000010 2803            CMP              R0, #2_00000011 ;Verifica se ne
                                                             nhuma chave está pr
                                                             essionada
-   57 00000012 D104            BNE              Verifica_SW1 ;Se o teste viu qu
+   62 00000012 D104            BNE              Verifica_SW1 ;Se o teste viu qu
                                                             e tem pelo menos al
                                                             guma chave pression
                                                             ada pula
-   58 00000014 F04F 0000       MOV              R0, #0      ;Não acender nenhum
+   63 00000014 F04F 0000       MOV              R0, #0      ;Não acender nenhum
                                                              LED
-   59 00000018 F7FF FFFE       BL               PortN_Output ;Chamar a função p
+   64 00000018 F7FF FFFE       BL               PortN_Output ;Chamar a função p
                                                             ara não acender nen
                                                             hum LED
-   60 0000001C E7F6            B                MainLoop    ;Se o teste viu que
+   65 0000001C E7F6            B                MainLoop    ;Se o teste viu que
                                                              nenhuma chave está
                                                              pressionada, volta
                                                              para o laço princi
                                                             pal
-   61 0000001E         Verifica_SW1
-   62 0000001E 2800            CMP              R0, #2_00000000 ;Verifica se so
+   66 0000001E         Verifica_SW1
+   67 0000001E 2802            CMP              R0, #2_00000010 ;Verifica se so
                                                             mente a chave SW1 e
                                                             stá pressionada
-   63 00000020 D1F4            BNE              MainLoop    ;Se o teste falhou,
+   68 00000020 D1F4            BNE              MainLoop    ;Se o teste falhou,
                                                              volta para o iníci
                                                             o do laço principal
                                                             
-   64 00000022 F000 F801       BL               Pisca_LED   ;Chama a rotina par
-                                                            a piscar LED
-   65 00000026 E7F1            B                MainLoop    ;Volta para o laço 
+   69 00000022         ; BL Pisca_LED     ;Chama a rotina para piscar LED
+   70 00000022 F04F 0003       MOV              R0, #2_00000011 ;Setar o parâme
+                                                            tro de entrada da f
+                                                            unção como o BIT4
+   71 00000026 F7FF FFFE       BL               PortN_Output
+   72 0000002A         
+   73 0000002A E7EF            B                MainLoop    ;Volta para o laço 
                                                             principal
-   66 00000028         
-   67 00000028         ;-------------------------------------------------------
-                       -------------------------
-   68 00000028         ; Função Pisca_LED
-   69 00000028         ; Parâmetro de entrada: Não tem
-   70 00000028         ; Parâmetro de saída: Não tem
-   71 00000028         Pisca_LED
-   72 00000028 F04F 0002       MOV              R0, #2_10   ;Setar o parâmetro 
-                                                            de entrada da funçã
-                                                            o setando o BIT1
+   74 0000002C         
 
 
 
 ARM Macro Assembler    Page 3 
 
 
-   73 0000002C B500            PUSH             {LR}
-   74 0000002E F7FF FFFE       BL               PortN_Output ;Chamar a função p
+   75 0000002C         
+   76 0000002C         ;-------------------------------------------------------
+                       -------------------------
+   77 0000002C         ; Função Pisca_LED
+   78 0000002C         ; Parâmetro de entrada: Não tem
+   79 0000002C         ; Parâmetro de saída: Não tem
+   80 0000002C         Pisca_LED
+   81 0000002C F04F 0003       MOV              R0, #2_11   ;Setar o parâmetro 
+                                                            de entrada da funçã
+                                                            o setando o BIT1
+   82 00000030 B500            PUSH             {LR}
+   83 00000032 F7FF FFFE       BL               PortN_Output ;Chamar a função p
                                                             ara acender o LED1
-   75 00000032 F44F 70FA       MOV              R0, #500    ;Chamar a rotina pa
+   84 00000036 F44F 70FA       MOV              R0, #500    ;Chamar a rotina pa
                                                             ra esperar 0,5s
-   76 00000036 F7FF FFFE       BL               SysTick_Wait1ms
-   77 0000003A F04F 0000       MOV              R0, #0      ;Setar o parâmetro 
+   85 0000003A F7FF FFFE       BL               SysTick_Wait1ms
+   86 0000003E F04F 0000       MOV              R0, #0      ;Setar o parâmetro 
                                                             de entrada da funçã
                                                             o apagando o BIT1
-   78 0000003E F7FF FFFE       BL               PortN_Output ;Chamar a rotina p
+   87 00000042 F7FF FFFE       BL               PortN_Output ;Chamar a rotina p
                                                             ara apagar o LED
-   79 00000042 F44F 70FA       MOV              R0, #500    ;Chamar a rotina pa
+   88 00000046 F44F 70FA       MOV              R0, #500    ;Chamar a rotina pa
                                                             ra esperar 0,5
-   80 00000046 F7FF FFFE       BL               SysTick_Wait1ms
-   81 0000004A F85D EB04       POP              {LR}
-   82 0000004E 4770            BX               LR          ;return
-   83 00000050         
-   84 00000050         ; ------------------------------------------------------
+   89 0000004A F7FF FFFE       BL               SysTick_Wait1ms
+   90 0000004E F85D EB04       POP              {LR}
+   91 00000052 4770            BX               LR          ;return
+   92 00000054         
+   93 00000054         
+   94 00000054         ; ------------------------------------------------------
                        --------------------------------------------------------
                        -----------
-   85 00000050         ; Fim do Arquivo
-   86 00000050         ; ------------------------------------------------------
+   95 00000054         ; Fim do Arquivo
+   96 00000054         ; ------------------------------------------------------
                        --------------------------------------------------------
                        ----------- 
-   87 00000050                 ALIGN                        ;Garante que o fim 
+   97 00000054                 ALIGN                        ;Garante que o fim 
                                                             da seção está alinh
                                                             ada 
-   88 00000050                 END                          ;Fim do arquivo
+   98 00000054                 END                          ;Fim do arquivo
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
 interwork --depend=.\objects\main.d -o.\objects\main.o -IC:\Users\rafa1\AppData
 \Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129 --predefine="__EVAL
@@ -202,18 +213,18 @@ Symbol: MainLoop
    Definitions
       At line 53 in file main.s
    Uses
-      At line 60 in file main.s
-      At line 63 in file main.s
       At line 65 in file main.s
+      At line 68 in file main.s
+      At line 73 in file main.s
 
-Pisca_LED 00000028
+Pisca_LED 0000002C
 
 Symbol: Pisca_LED
    Definitions
-      At line 71 in file main.s
+      At line 80 in file main.s
    Uses
-      At line 64 in file main.s
-Comment: Pisca_LED used once
+      None
+Comment: Pisca_LED unused
 Start 00000000
 
 Symbol: Start
@@ -226,7 +237,7 @@ Verifica_Nenhuma 00000010
 
 Symbol: Verifica_Nenhuma
    Definitions
-      At line 55 in file main.s
+      At line 60 in file main.s
    Uses
       None
 Comment: Verifica_Nenhuma unused
@@ -234,9 +245,9 @@ Verifica_SW1 0000001E
 
 Symbol: Verifica_SW1
    Definitions
-      At line 61 in file main.s
+      At line 66 in file main.s
    Uses
-      At line 57 in file main.s
+      At line 62 in file main.s
 Comment: Verifica_SW1 used once
 6 symbols
 
@@ -275,9 +286,10 @@ Symbol: PortN_Output
    Definitions
       At line 42 in file main.s
    Uses
-      At line 59 in file main.s
-      At line 74 in file main.s
-      At line 78 in file main.s
+      At line 64 in file main.s
+      At line 71 in file main.s
+      At line 83 in file main.s
+      At line 87 in file main.s
 
 SysTick_Init 00000000
 
@@ -293,8 +305,8 @@ Symbol: SysTick_Wait1ms
    Definitions
       At line 40 in file main.s
    Uses
-      At line 76 in file main.s
-      At line 80 in file main.s
+      At line 85 in file main.s
+      At line 89 in file main.s
 
 6 symbols
 347 symbols in table

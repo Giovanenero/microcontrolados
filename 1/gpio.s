@@ -90,7 +90,7 @@ EsperaGPIO  LDR     R1, [R0]						;Lê da memória o conteúdo do endereço do regis
             STR     R1, [R0]                        ;Guarda no registrador PCTL da porta N da memória
 ; 4. DIR para 0 se for entrada, 1 se for saída
             LDR     R0, =GPIO_PORTN_DIR_R			;Carrega o R0 com o endereço do DIR para a porta N
-			MOV     R1, #2_0010						;PN1
+			MOV     R1, #2_0011						;PN1
             STR     R1, [R0]						;Guarda no registrador
 			; O certo era verificar os outros bits da PJ para não transformar entradas em saídas desnecessárias
             LDR     R0, =GPIO_PORTJ_AHB_DIR_R		;Carrega o R0 com o endereço do DIR para a porta J
@@ -105,17 +105,18 @@ EsperaGPIO  LDR     R1, [R0]						;Lê da memória o conteúdo do endereço do regis
             STR     R1, [R0]                        ;Escreve na porta
 ; 6. Setar os bits de DEN para habilitar I/O digital
             LDR     R0, =GPIO_PORTN_DEN_R			    ;Carrega o endereço do DEN
-            MOV     R1, #2_00000010                     ;N1
+            MOV     R1, #2_00000011                     ;N1 = 10, N0=01, N1 e N0 = 11
             STR     R1, [R0]							;Escreve no registrador da memória funcionalidade digital 
  
             LDR     R0, =GPIO_PORTJ_AHB_DEN_R			;Carrega o endereço do DEN
-			MOV     R1, #2_00000001                     ;J0     
+			MOV     R1, #2_00000011                     ;Ativa os pinos PJ0 e PJ1 como I/O Digital     
             STR     R1, [R0]                            ;Escreve no registrador da memória funcionalidade digital
 			
 ; 7. Para habilitar resistor de pull-up interno, setar PUR para 1
 			LDR     R0, =GPIO_PORTJ_AHB_PUR_R			;Carrega o endereço do PUR para a porta J
-			MOV     R1, #2_1							;Habilitar funcionalidade digital de resistor de pull-up 
-            STR     R1, [R0]							;Escreve no registrador da memória do resistor de pull-up
+			;MOV     R1, #2_1							;Habilitar funcionalidade digital de resistor de pull-up 
+            MOV     R1, #2_00000011
+			STR     R1, [R0]							;Escreve no registrador da memória do resistor de pull-up
 			BX      LR
 
 ; -------------------------------------------------------------------------------
@@ -126,11 +127,12 @@ PortN_Output
 	LDR	R1, =GPIO_PORTN_DATA_R		    ;Carrega o valor do offset do data register
 	;Read-Modify-Write para escrita
 	LDR R2, [R1]
-	BIC R2, #2_00000010                     ;Primeiro limpamos os dois bits do lido da porta R2 = R2 & 11111101
+	BIC R2, #2_00000011                     ;Primeiro limpamos os dois bits do lido da porta R2 = R2 & 11111101
 	ORR R0, R0, R2                          ;Fazer o OR do lido pela porta com o parâmetro de entrada
 	STR R0, [R1]                            ;Escreve na porta N o barramento de dados do pino N1
-	BX LR									;Retorno
-
+	BX LR	;Retorno
+	
+	
 ; -------------------------------------------------------------------------------
 ; Função PortJ_Input
 ; Parâmetro de entrada: Não tem

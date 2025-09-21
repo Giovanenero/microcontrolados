@@ -64,23 +64,17 @@ Start
 	BL SysTick_Init
 	BL GPIO_Init                 ;Chama a subrotina que inicializa os GPIO
 
-
-	MOV R6, #0 ; valor inicial do display
+	; Define os valores iniciais
+	MOV R6, #5          ; unidades
+    MOV R10, #1         ; dezenas
 	
     MOV R5, R6
-    BL  AtualizaDisplay
-	
-	BL LigaDezenas
-	
+    BL  AtualizaValorDisplay
 	
 MainLoop
+	BL  RefreshDisplay
 	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
 
-	MOV R5, R6
-	BL  AtualizaDisplay
-	
-	;MOV R0, #1000
-    ;BL  EsperaXms
 	
 Verifica_SW1	
 	CMP R12, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
@@ -88,7 +82,6 @@ Verifica_SW1
 
 	BL AcendeLed1
 	BL IncrementaValor
-	
 	MOV R0, #500 ; define o tempo de espera
 	BL EsperaXms
 
@@ -98,21 +91,14 @@ Verifica_SW2
 	BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
 
 	BL AcendeLed1
-	
-	;ADD R6, #1
-    ;CMP R6, #10
-    ;IT GE
-    ;    MOVGE R6, #0
 	BL DecrementaValor
 		
 	MOV R0, #500 ; define o tempo de espera
 	BL EsperaXms
 	
 	B MainLoop                   ;Volta para o laço principal
-
-
-
-
+	
+	
 
 
 LigaUnidades
@@ -130,29 +116,79 @@ LigaDezenas
     BX   LR	
 	
 	
+DesligaDisplays
+    PUSH {LR}
+    MOV  R5, #0
+    BL   PortB_Output
+    POP  {LR}
+    BX   LR	
+	
+	
+
+RefreshDisplay
+    PUSH {LR}
+
+    ; Unidades (PB5) 
+    MOV R5, R6
+    BL  AtualizaValorDisplay
+    BL  LigaUnidades
+    MOV R0, #1
+    BL  EsperaXms
+
+    ; Dezenas (PB4) 
+    MOV R5, R10
+    BL  AtualizaValorDisplay
+    BL  LigaDezenas
+    MOV R0, #1
+    BL  EsperaXms
+
+    POP {LR}
+    BX  LR	
+		
+	
 IncrementaValor
+	PUSH {LR}
     ADD R6, #1
     CMP R6, #10
-    IT  GE
-        MOVGE R6, #0
+	BLT SaiIncrementaValor
+    MOV R6, #0
+	
+    BL  AumentaDezena
+	POP {LR}
+
+SaiIncrementaValor
     BX  LR
 
 
 DecrementaValor
+	PUSH {LR}
     SUB R6, #1
     CMP R6, #0
-    IT  LT
-        MOVLT R6, #9
+    BGE SaiDecrementaValor
+    MOV R6, #9
+    BL  DiminuiDezena
+	POP {LR}
+	
+SaiDecrementaValor
     BX  LR
 
-AumentaDezena
 
+AumentaDezena
+    ADD R10, #1
+    CMP R10, #10
+    IT  GE
+        MOVGE R10, #0
+    BX  LR
 
 DiminuiDezena
-
+    SUB R10, #1
+    CMP R10, #0
+    IT  LT
+        MOVLT R10, #9
+    BX  LR
 
 	
-AtualizaDisplay
+AtualizaValorDisplay
     MOV  R7, #0
     PUSH {LR}
 
@@ -219,6 +255,14 @@ AtualizaDisplay
     BX   LR	
 	
 	
+EsperaXms ; usa o R0 como valor de espera
+	PUSH {LR}
+	BL SysTick_Wait1ms
+	POP {LR}
+	
+	BX LR	
+	
+	
 	
 	
 	
@@ -235,18 +279,6 @@ Verifica_Nenhuma
 	;MOV R0, #0                   ;Não acender nenhum LED
 	;BL PortN_Output			 	 ;Chamar a função para não acender nenhum LED
 	B MainLoop					 ;Se o teste viu que nenhuma chave está pressionada, volta para o laço principal
-	
-;Verifica_SW1	
-	;CMP R0, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
-	;BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
-
-	;BL AcendeLed1
-	
-	;MOV R0, #1000 ; define o tempo de espera
-	;BL EsperaXms
-	
-	;B MainLoop                   ;Volta para o laço principal
-
 
 
 
@@ -284,30 +316,16 @@ ApagaLeds
 	
 	BX LR
 
-Espera1Segundo
-	PUSH {LR}
-	MOV R0, #1000                ;Chamar a rotina para esperar 0,5s
-	BL SysTick_Wait1ms
-	POP {LR}
-	
-	BX LR
-
-EsperaXms ; usa o R0 como valor de espera
-	PUSH {LR}
-	BL SysTick_Wait1ms
-	POP {LR}
-	
-	BX LR
 
 ; Funcao para ativar o transistor de controle do ativamento dos displays
 AtivaTransistorB 
 	PUSH {LR}
-	MOV R0, #10    ; define o tempo de espera
+	MOV R0, #1    ; define o tempo de espera
 	BL EsperaXms
 	
 	BL PortB_Output
 	
-	MOV R0, #10
+	MOV R0, #1
 	BL EsperaXms
 	
 	MOV R5, #0

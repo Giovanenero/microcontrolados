@@ -50,6 +50,7 @@ Start
 	BL SysTick_Init
 	BL GPIO_Init                 ;Chama a subrotina que inicializa os GPIO
 
+
 MainLoop
 	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R0
 	; SW1 PRESSIONADA = 10 == 0x02
@@ -60,17 +61,64 @@ MainLoop
 Verifica_Nenhuma
 	CMP	R0, #2_00000011			 ;Verifica se nenhuma chave está pressionada
 	BNE Verifica_SW1			 ;Se o teste viu que tem pelo menos alguma chave pressionada pula
-	MOV R0, #0                   ;Não acender nenhum LED
-	BL PortN_Output			 	 ;Chamar a função para não acender nenhum LED
+	BL ApagaLeds
+	;MOV R0, #0                   ;Não acender nenhum LED
+	;BL PortN_Output			 	 ;Chamar a função para não acender nenhum LED
 	B MainLoop					 ;Se o teste viu que nenhuma chave está pressionada, volta para o laço principal
+	
 Verifica_SW1	
 	CMP R0, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
 	BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
-;	BL Pisca_LED				 ;Chama a rotina para piscar LED
-	MOV R0, #2_00000011			 ;Setar o parâmetro de entrada da função como o BIT4
-	BL PortN_Output	
+
+	BL AcendeLed1
+	BL Espera1Segundo
 	
 	B MainLoop                   ;Volta para o laço principal
+
+
+
+
+AcendeLed1
+	PUSH {LR}
+	MOV R0, #2_00000010          ; Acende o primeiro LED apenas
+	BL PortN_Output
+	POP {LR}
+	
+	BX LR
+	
+AcendeLed2
+	PUSH {LR}
+	MOV R0, #2_00000001          ; Acende o segundo LED apenas
+	BL PortN_Output
+	POP {LR}
+	
+	BX LR
+	
+AcendeTodosLeds
+	PUSH {LR}
+	MOV R0, #2_00000011          ; Acende os dois leds
+	BL PortN_Output
+	POP {LR}
+	
+	BX LR	
+	
+ApagaLeds
+	PUSH {LR}
+	MOV R0, #0                   ;Não acende nenhum LED
+	BL PortN_Output
+	POP {LR}
+	
+	BX LR
+
+Espera1Segundo
+	PUSH {LR}
+	MOV R0, #1000                ;Chamar a rotina para esperar 0,5s
+	BL SysTick_Wait1ms
+	POP {LR}
+	
+	BX LR
+
+
 
 
 ;--------------------------------------------------------------------------------

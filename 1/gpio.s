@@ -300,7 +300,7 @@ PortB_Output
 ; Parâmetro de saída: R0 --> o valor da leitura
 PortJ_Input
 	LDR	R1, =GPIO_PORTJ_AHB_DATA_R		    ;Carrega o valor do offset do data register
-	LDR R0, [R1]                            ;Lê no barramento de dados dos pinos [J0]
+	LDR R12, [R1]                            ;Lê no barramento de dados dos pinos [J0]
 	
 	BX LR									;Retorno
 

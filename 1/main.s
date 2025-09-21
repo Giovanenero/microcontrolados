@@ -13,6 +13,17 @@
 ;<NOME>         EQU <VALOR>
 ; ========================
 
+DIGITO_0    EQU    2_0111111
+DIGITO_1	EQU    2_0000110
+DIGITO_2    EQU    2_1011011
+DIGITO_3	EQU    2_1001111
+DIGITO_4    EQU    2_1100110
+DIGITO_5	EQU    2_1101101
+DIGITO_6    EQU    2_1111101
+DIGITO_7	EQU    2_0000111	
+DIGITO_8    EQU    2_1111111
+DIGITO_9	EQU    2_1101111	
+	
 ; -------------------------------------------------------------------------------
 ; Área de Dados - Declarações de variáveis
 		AREA  DATA, ALIGN=2
@@ -56,12 +67,166 @@ Start
 
 	MOV R6, #0 ; valor inicial do display
 	
+    MOV R5, R6
+    BL  AtualizaDisplay
+	
+	BL LigaDezenas
+	
+	
 MainLoop
-	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R0
-	; SW1 PRESSIONADA = 10 == 0x02
-	; SW2 PRESSIODADA = 01 = 0x01
-	; AMBAS PRESSIONADAS = 00 == 0x00
-	; NENHUMA PRESSIONADA = 11 == 0x03
+	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
+
+	MOV R5, R6
+	BL  AtualizaDisplay
+	
+	;MOV R0, #1000
+    ;BL  EsperaXms
+	
+Verifica_SW1	
+	CMP R12, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
+	BNE Verifica_SW2                 ;Se o teste falhou, volta para o início do laço principal
+
+	BL AcendeLed1
+	BL IncrementaValor
+	
+	MOV R0, #500 ; define o tempo de espera
+	BL EsperaXms
+
+	
+Verifica_SW2	
+	CMP R12, #2_00000001			 ;Verifica se somente a chave SW1 está pressionada
+	BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
+
+	BL AcendeLed1
+	
+	;ADD R6, #1
+    ;CMP R6, #10
+    ;IT GE
+    ;    MOVGE R6, #0
+	BL DecrementaValor
+		
+	MOV R0, #500 ; define o tempo de espera
+	BL EsperaXms
+	
+	B MainLoop                   ;Volta para o laço principal
+
+
+
+
+
+
+LigaUnidades
+    PUSH {LR}
+    MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
+    BL   PortB_Output       ; escreve em PB4/PB5
+    POP  {LR}
+    BX   LR	
+	
+LigaDezenas
+	PUSH {LR}
+    MOV  R5, #2_10000       ; PB5 = 1, PB4 = 0
+    BL   PortB_Output       ; escreve em PB4/PB5
+    POP  {LR}
+    BX   LR	
+	
+	
+IncrementaValor
+    ADD R6, #1
+    CMP R6, #10
+    IT  GE
+        MOVGE R6, #0
+    BX  LR
+
+
+DecrementaValor
+    SUB R6, #1
+    CMP R6, #0
+    IT  LT
+        MOVLT R6, #9
+    BX  LR
+
+AumentaDezena
+
+
+DiminuiDezena
+
+
+	
+AtualizaDisplay
+    MOV  R7, #0
+    PUSH {LR}
+
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_0
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_1
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_2
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_3
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_4
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_5
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_6
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_7
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_8  
+        BLEQ  PortAQ_Output
+
+    ADD  R7, #1
+    CMP  R5, R7
+    ITT  EQ
+        MOVEQ R4, #DIGITO_9  
+        BLEQ  PortAQ_Output
+
+    POP  {LR}
+    BX   LR	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 Verifica_Nenhuma
 	CMP	R0, #2_00000011			 ;Verifica se nenhuma chave está pressionada
@@ -71,16 +236,16 @@ Verifica_Nenhuma
 	;BL PortN_Output			 	 ;Chamar a função para não acender nenhum LED
 	B MainLoop					 ;Se o teste viu que nenhuma chave está pressionada, volta para o laço principal
 	
-Verifica_SW1	
-	CMP R0, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
-	BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
+;Verifica_SW1	
+	;CMP R0, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
+	;BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
 
-	BL AcendeLed1
+	;BL AcendeLed1
 	
-	MOV R0, #1000 ; define o tempo de espera
-	BL EsperaXms
+	;MOV R0, #1000 ; define o tempo de espera
+	;BL EsperaXms
 	
-	B MainLoop                   ;Volta para o laço principal
+	;B MainLoop                   ;Volta para o laço principal
 
 
 

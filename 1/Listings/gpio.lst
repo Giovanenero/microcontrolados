@@ -762,20 +762,20 @@ ARM Macro Assembler    Page 12
                                                             rega o valor do off
                                                             set do data registe
                                                             r
-  303 00000132 6808            LDR              R0, [R1]    ;Lê no barramento d
+  303 00000132 F8D1 C000       LDR              R12, [R1]   ;Lê no barramento d
                                                             e dados dos pinos [
                                                             J0]
-  304 00000134         
-  305 00000134 4770            BX               LR          ;Retorno
-  306 00000136         
-  307 00000136         ; ------------------------------------------------------
+  304 00000136         
+  305 00000136 4770            BX               LR          ;Retorno
+  306 00000138         
+  307 00000138         ; ------------------------------------------------------
                        -------------------------
-  308 00000136         ; Função PortN_Output
-  309 00000136         ; Parâmetro de entrada: R0 --> se o BIT1 está ligado ou 
+  308 00000138         ; Função PortN_Output
+  309 00000138         ; Parâmetro de entrada: R0 --> se o BIT1 está ligado ou 
                        desligado
-  310 00000136         ; Parâmetro de saída: Não tem
-  311 00000136         PortN_Output
-  312 00000136 492D            LDR              R1, =GPIO_PORTN_DATA_R ;Carrega
+  310 00000138         ; Parâmetro de saída: Não tem
+  311 00000138         PortN_Output
+  312 00000138 492C            LDR              R1, =GPIO_PORTN_DATA_R ;Carrega
                                                              o valor do offset 
                                                             do data register
 
@@ -784,39 +784,39 @@ ARM Macro Assembler    Page 12
 ARM Macro Assembler    Page 13 
 
 
-  313 00000138         ;Read-Modify-Write para escrita
-  314 00000138 680A            LDR              R2, [R1]
-  315 0000013A F022 0203       BIC              R2, #2_00000011 ;Primeiro limpa
+  313 0000013A         ;Read-Modify-Write para escrita
+  314 0000013A 680A            LDR              R2, [R1]
+  315 0000013C F022 0203       BIC              R2, #2_00000011 ;Primeiro limpa
                                                             mos os dois bits do
                                                              lido da porta R2 =
                                                              R2 & 11111101
-  316 0000013E EA40 0002       ORR              R0, R0, R2  ;Fazer o OR do lido
+  316 00000140 EA40 0002       ORR              R0, R0, R2  ;Fazer o OR do lido
                                                              pela porta com o p
                                                             arâmetro de entrada
                                                             
-  317 00000142 6008            STR              R0, [R1]    ;Escreve na porta N
+  317 00000144 6008            STR              R0, [R1]    ;Escreve na porta N
                                                              o barramento de da
                                                             dos do pino N1
-  318 00000144         
-  319 00000144 4770            BX               LR          ;Retorno
-  320 00000146         
-  321 00000146         ; ------------------------------------------------------
+  318 00000146         
+  319 00000146 4770            BX               LR          ;Retorno
+  320 00000148         
+  321 00000148         ; ------------------------------------------------------
                        -------------------------
-  322 00000146         ; Função PortP_Output = Ativa transistor Q1 que ativa os
+  322 00000148         ; Função PortP_Output = Ativa transistor Q1 que ativa os
                         leds
-  323 00000146         PortP_Output
-  324 00000146 492A            LDR              R1, =GPIO_PORTP_DATA_R
-  325 00000148 680A            LDR              R2, [R1]
-  326 0000014A F022 0220       BIC              R2, #2_100000
-  327 0000014E EA42 0005       ORR              R0, R2, R5
-  328 00000152 6008            STR              R0, [R1]    ;Escreve na porta N
+  323 00000148         PortP_Output
+  324 00000148 4929            LDR              R1, =GPIO_PORTP_DATA_R
+  325 0000014A 680A            LDR              R2, [R1]
+  326 0000014C F022 0220       BIC              R2, #2_100000
+  327 00000150 EA42 0005       ORR              R0, R2, R5
+  328 00000154 6008            STR              R0, [R1]    ;Escreve na porta N
                                                              o barramento de da
                                                             dos do pino N1
-  329 00000154         
-  330 00000154 4770            BX               LR          ;Retorno
-  331 00000156         
-  332 00000156         
-  333 00000156 00 00           ALIGN                        ; garante que o fim
+  329 00000156         
+  330 00000156 4770            BX               LR          ;Retorno
+  331 00000158         
+  332 00000158         
+  333 00000158                 ALIGN                        ; garante que o fim
                                                              da seção está alin
                                                             hada 
   334 00000158                 END                          ; fim do arquivo
@@ -924,7 +924,7 @@ Symbol: PortJ_Input
    Uses
       At line 107 in file gpio.s
 Comment: PortJ_Input used once
-PortN_Output 00000136
+PortN_Output 00000138
 
 Symbol: PortN_Output
    Definitions
@@ -932,7 +932,7 @@ Symbol: PortN_Output
    Uses
       At line 108 in file gpio.s
 Comment: PortN_Output used once
-PortP_Output 00000146
+PortP_Output 00000148
 
 Symbol: PortP_Output
 

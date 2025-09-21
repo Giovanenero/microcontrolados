@@ -39,8 +39,11 @@
 		IMPORT  SysTick_Init
 		IMPORT  SysTick_Wait1ms			
 		IMPORT  GPIO_Init
-        IMPORT  PortN_Output
-        IMPORT  PortJ_Input	
+        IMPORT  PortAQ_Output
+        IMPORT  PortB_Output	        
+		IMPORT  PortJ_Input
+        IMPORT  PortN_Output	        
+        IMPORT  PortP_Output	
 
 
 ; -------------------------------------------------------------------------------
@@ -51,6 +54,8 @@ Start
 	BL GPIO_Init                 ;Chama a subrotina que inicializa os GPIO
 
 
+	MOV R6, #0 ; valor inicial do display
+	
 MainLoop
 	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R0
 	; SW1 PRESSIONADA = 10 == 0x02
@@ -71,9 +76,13 @@ Verifica_SW1
 	BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
 
 	BL AcendeLed1
-	BL Espera1Segundo
+	
+	MOV R0, #1000 ; define o tempo de espera
+	BL EsperaXms
 	
 	B MainLoop                   ;Volta para o laço principal
+
+
 
 
 
@@ -118,26 +127,49 @@ Espera1Segundo
 	
 	BX LR
 
-
-
-
-;--------------------------------------------------------------------------------
-; Função Pisca_LED
-; Parâmetro de entrada: Não tem
-; Parâmetro de saída: Não tem
-Pisca_LED
-	MOV R0, #2_11				 ;Setar o parâmetro de entrada da função setando o BIT1
+EsperaXms ; usa o R0 como valor de espera
 	PUSH {LR}
-	BL PortN_Output				 ;Chamar a função para acender o LED1
-	MOV R0, #500                ;Chamar a rotina para esperar 0,5s
 	BL SysTick_Wait1ms
-	MOV R0, #0					 ;Setar o parâmetro de entrada da função apagando o BIT1
-	BL PortN_Output				 ;Chamar a rotina para apagar o LED
-	MOV R0, #500                ;Chamar a rotina para esperar 0,5
-	BL SysTick_Wait1ms	
 	POP {LR}
-	BX LR	;return
 	
+	BX LR
+
+; Funcao para ativar o transistor de controle do ativamento dos displays
+AtivaTransistorB 
+	PUSH {LR}
+	MOV R0, #10    ; define o tempo de espera
+	BL EsperaXms
+	
+	BL PortB_Output
+	
+	MOV R0, #10
+	BL EsperaXms
+	
+	MOV R5, #0
+	BL PortB_Output
+	
+	POP {LR}
+	BX LR
+
+
+; Funcao para ativar o transistor de controle dos leds da PAT
+AtivaTransistorP
+	PUSH {LR}
+	MOV R0, #10
+	BL EsperaXms
+	
+	BL PortP_Output
+	
+	MOV R0, #10
+	BL EsperaXms
+	
+	MOV R5, #0
+	BL PortP_Output
+	
+	POP {LR}
+	BX LR						 ;return
+
+
 
 ; -------------------------------------------------------------------------------------------------------------------------
 ; Fim do Arquivo

@@ -64,10 +64,10 @@ Start
 	BL SysTick_Init
 	BL GPIO_Init                 ;Chama a subrotina que inicializa os GPIO
 
-	; Define os valores iniciais
+	; Define os valores iniciais (15) 
+	MOV R10, #1         ; dezenas
 	MOV R6, #5          ; unidades
-    MOV R10, #1         ; dezenas
-	
+    
     MOV R5, R6
     BL  AtualizaValorDisplay
 	
@@ -115,16 +115,6 @@ LigaDezenas
     POP  {LR}
     BX   LR	
 	
-	
-DesligaDisplays
-    PUSH {LR}
-    MOV  R5, #0
-    BL   PortB_Output
-    POP  {LR}
-    BX   LR	
-	
-	
-
 RefreshDisplay
     PUSH {LR}
 
@@ -148,6 +138,10 @@ RefreshDisplay
 	
 IncrementaValor
 	PUSH {LR}
+	
+	CMP  R10, #5			; se a dezena estiver em 5 sai do loop e nao aumenta
+	BEQ SaiIncrementaValor
+	
     ADD R6, #1
     CMP R6, #10
 	BLT SaiIncrementaValor
@@ -162,6 +156,13 @@ SaiIncrementaValor
 
 DecrementaValor
 	PUSH {LR}
+	
+	CMP  R10, #0      	; compara se a dezena e 0, se nao for pode diminuir o valor
+	BNE DiminuiValor
+	CMP  R6,  #5		; se a dezena for 0 e a unidade for igual a 5 nao diminui mais, sai da funcao
+	BEQ SaiDecrementaValor
+	
+DiminuiValor
     SUB R6, #1
     CMP R6, #0
     BGE SaiDecrementaValor

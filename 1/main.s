@@ -54,7 +54,8 @@ DIGITO_9	EQU    2_1101111
         IMPORT  PortB_Output	        
 		IMPORT  PortJ_Input
         IMPORT  PortN_Output	        
-        IMPORT  PortP_Output	
+        IMPORT  PortP_Output
+		IMPORT 	PortLeds_Output
 
 
 ; -------------------------------------------------------------------------------
@@ -66,28 +67,40 @@ Start
 
 	; Define os valores iniciais (15) 
 	MOV R10, #1         ; dezenas
-	MOV R6, #5          ; unidades
+	MOV R11, #5          ; unidades
     
-    MOV R5, R6
+    MOV R5, R11
+
     BL  AtualizaValorDisplay
 	
 MainLoop
-	BL  RefreshDisplay
-	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
 
-	
+	;BL RefreshDisplay
+	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
+	BL AtivaTransistores
+
+
 Verifica_SW1	
 	CMP R12, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
 	BNE Verifica_SW2                 ;Se o teste falhou, volta para o início do laço principal
 
 	BL AcendeLed1
 	BL IncrementaValor
+	
+	;BL DesativaTransistorB
+
+	;BL AtivaTransistorP
+	
+	MOV  R4, #25
+    BL  PortLeds_Output
+	
+
 	MOV R0, #500 ; define o tempo de espera
 	BL EsperaXms
 
 	
 Verifica_SW2	
-	CMP R12, #2_00000001			 ;Verifica se somente a chave SW1 está pressionada
+	CMP R12, #2_00000001		 ;Verifica se somente a chave SW1 está pressionada
 	BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
 
 	BL AcendeLed1
@@ -119,7 +132,7 @@ RefreshDisplay
     PUSH {LR}
 
     ; Unidades (PB5) 
-    MOV R5, R6
+    MOV R5, R11
     BL  AtualizaValorDisplay
     BL  LigaUnidades
     MOV R0, #1
@@ -142,10 +155,10 @@ IncrementaValor
 	CMP  R10, #5			; se a dezena estiver em 5 sai do loop e nao aumenta
 	BEQ SaiIncrementaValor
 	
-    ADD R6, #1
-    CMP R6, #10
+    ADD R11, #1
+    CMP R11, #10
 	BLT SaiIncrementaValor
-    MOV R6, #0
+    MOV R11, #0
 	
     BL  AumentaDezena
 	POP {LR}
@@ -159,14 +172,14 @@ DecrementaValor
 	
 	CMP  R10, #0      	; compara se a dezena e 0, se nao for pode diminuir o valor
 	BNE DiminuiValor
-	CMP  R6,  #5		; se a dezena for 0 e a unidade for igual a 5 nao diminui mais, sai da funcao
+	CMP  R11,  #5		; se a dezena for 0 e a unidade for igual a 5 nao diminui mais, sai da funcao
 	BEQ SaiDecrementaValor
 	
 DiminuiValor
-    SUB R6, #1
-    CMP R6, #0
+    SUB R11, #1
+    CMP R11, #0
     BGE SaiDecrementaValor
-    MOV R6, #9
+    MOV R11, #9
     BL  DiminuiDezena
 	POP {LR}
 	
@@ -265,7 +278,28 @@ EsperaXms ; usa o R0 como valor de espera
 	
 	
 	
+AtivaTransistores
+	PUSH {LR}
+	BL PortB_Output
 	
+	MOV R0, #1
+	BL EsperaXms
+	
+	MOV R5, #0
+	BL PortB_Output
+	
+	MOV R0, #1
+	BL EsperaXms
+	
+	BL PortP_Output
+	
+	MOV R0, #1
+	BL EsperaXms
+	
+	MOV R5, #0
+	BL PortP_Output
+	
+	POP {LR}
 	
 	
 	
@@ -335,20 +369,30 @@ AtivaTransistorB
 	POP {LR}
 	BX LR
 
-
+DesativaTransistorB 
+	PUSH {LR}
+	
+	MOV R5, #0
+	BL PortB_Output
+	
+	POP {LR}
+	BX LR
+	
+	
 ; Funcao para ativar o transistor de controle dos leds da PAT
 AtivaTransistorP
 	PUSH {LR}
-	MOV R0, #10
+	MOV R0, #1
 	BL EsperaXms
-	
+
+	MOV R5, #2_100000
 	BL PortP_Output
 	
-	MOV R0, #10
+	MOV R0, #1
 	BL EsperaXms
 	
-	MOV R5, #0
-	BL PortP_Output
+	;MOV R5, #0
+	;BL PortP_Output
 	
 	POP {LR}
 	BX LR						 ;return

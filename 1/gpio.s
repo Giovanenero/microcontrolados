@@ -107,6 +107,7 @@ GPIO_PORTQ              EQU 2_100000000000000
 		EXPORT PortJ_Input			; Permite chamar PortJ_Input de outro arquivo
 		EXPORT PortN_Output			; Permite chamar PortN_Output de outro arquivo
 		EXPORT PortP_Output			; Permite chamar PortP_Output de outro arquivo
+		EXPORT PortLeds_Output
 									
 ;--------------------------------------------------------------------------------
 ; Função GPIO_Init
@@ -264,6 +265,26 @@ EsperaGPIO  LDR     R1, [R0]						;Lê da memória o conteúdo do endereço do regis
 
 ; Função PortAQ_Output = Liga/Desliga displays
 PortAQ_Output
+	LDR	R1, =GPIO_PORTA_AHB_DATA_R		    ;Carrega o valor do offset do data register
+	AND R0, R4, #2_11110000
+	
+	LDR R2, [R1]
+	BIC R2, #2_11110000                     ;Primeiro limpamos os dois bits do lido da porta R2 = R2 & 11111101
+	ORR R0, R0, R2                          ;Fazer o OR do lido pela porta com o parâmetro de entrada
+	STR R0, [R1]                            ;Escreve na porta N o barramento de dados do pino N1
+	
+	LDR	R1, =GPIO_PORTQ_DATA_R      		;Carrega o valor do offset do data register
+	AND R0, R4, #2_00001111
+	
+	LDR R2, [R1]
+	BIC R2, #2_1111                     	;Primeiro limpamos os dois bits do lido da porta R2 = R2 & 11111101
+	ORR R0, R0, R2                          ;Fazer o OR do lido pela porta com o parâmetro de entrada
+	STR R0, [R1]                            ;Escreve na porta N o barramento de dados do pino N1
+	
+	BX LR	;Retorno
+	
+	
+PortLeds_Output
 	LDR	R1, =GPIO_PORTA_AHB_DATA_R		    ;Carrega o valor do offset do data register
 	AND R0, R4, #2_11110000
 	

@@ -29,7 +29,7 @@ ADDRESS_ALVO     EQU 0x20000404
 ADDRESS_CURRENT     EQU 0x20000400
 DISPLAY_DEZENA     EQU 0x20000600
 DISPLAY_UNIDADE     EQU 0x20000604
-
+ADDRESS_WRITE_500MS	EQU	0x20000608
 
 ; -------------------------------------------------------------------------------
 ; Área de Dados - Declarações de variáveis
@@ -93,7 +93,14 @@ inicializaMemoria
 	MOV R6, #5
 	LDR R0, =DISPLAY_UNIDADE
     STR R6, [R0]
-
+	
+	; Contador switch
+	MOV R9, #0
+	LDR R0, =ADDRESS_WRITE_500MS
+    STR R9, [R0]
+	
+	MOV R9, #1
+	
 	BX LR
 
 	
@@ -125,15 +132,20 @@ inicializaMemoria
 
 MainLoop
     BL PortJ_Input                 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
+	B esperaSW
+	
+VerificaSW
 
     ; verifica SW1
     CMP R12, #2_00000010
-    IT EQ
+    ITT EQ
+		MOVEQ R9, #0
         BLEQ incrementaAlvo
 
     ; verifica SW2
     CMP R12, #2_00000001
-    IT EQ
+    ITT EQ
+		MOVEQ R9, #0
         BLEQ decrementaAlvo
 
 VoltaLoop
@@ -172,7 +184,28 @@ VerificaTemperatura
 	
 	B MainLoop 
 
-
+esperaSW
+    
+    LDR R0, =ADDRESS_WRITE_500MS
+    LDR R1, [R0]
+    
+    CMP R9, #1
+    BEQ VerificaSW
+    
+    ; caso R9 ja foi pressionado...
+    ADD R1, R1, #5
+        
+    CMP R1, #600
+    ITT EQ
+        MOVEQ R1, #0
+        MOVEQ R9, #1 ; agora pode pressionar o SW
+    
+    
+    STR R1, [R0]
+    
+    B VoltaLoop
+	
+	
 incrementaAlvo                                ; ao pressionar o SW1
 	BL AcendeLed1
     LDR R0, =ADDRESS_ALVO

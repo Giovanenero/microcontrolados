@@ -70,7 +70,11 @@ Start
 	BL PLL_Init                  ;Chama a subrotina para alterar o clock do microcontrolador para 80MHz
 	BL SysTick_Init
 	BL GPIO_Init                 ;Chama a subrotina que inicializa os GPIO
-
+	BL inicializaMemoria
+	
+	B MainLoop
+	
+inicializaMemoria
 	; Temperatura alvo
 	MOV R8, #25
 	
@@ -89,40 +93,66 @@ Start
 	MOV R6, #5
 	LDR R0, =DISPLAY_UNIDADE
     STR R6, [R0]
-	
-    ;BL  AtualizaValorDisplay
-	
-MainLoop
-	BL RefreshDisplay
-	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
 
-
-
-Verifica_SW1	
-	CMP R12, #2_00000010			 ;Verifica se somente a chave SW1 está pressionada
-	BNE Verifica_SW2                 ;Se o teste falhou, volta para o início do laço principal
-
-	BL AcendeLed1
-	BL incrementaAlvo
-	MOV R0, #500 ; define o tempo de espera
-	BL EsperaXms
+	BX LR
 
 	
-Verifica_SW2	
-	CMP R12, #2_00000001			 ;Verifica se somente a chave SW1 está pressionada
-	BNE VerificaTemperatura                 ;Se o teste falhou, volta para o início do laço principal
-
-	BL AcendeLed2
-	BL decrementaAlvo
+;MainLoop
+	;BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
+	
+	;; verifica SW1
+	;CMP R12, #2_00000010
+	;IT EQ
+		;BLEQ incrementaAlvo
+	
+	;; verifica SW2
+	;CMP R12, #2_00000001
+	;IT EQ
+		;BLEQ decrementaAlvo
+	
+;VoltaLoop
+	
+	;BL RefreshDisplay
 		
-	MOV R0, #500 ; define o tempo de espera
-	BL EsperaXms
+	;;MOV R0, #300
+	;;BL EsperaXms
+	;BL VerificaTemperatura
 	
-					  
+	;B MainLoop
 	
+	;;MOV R0, #500 ; define o tempo de espera
+	;;BL EsperaXms
+
+MainLoop
+    BL PortJ_Input                 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
+
+    ; verifica SW1
+    CMP R12, #2_00000010
+    IT EQ
+        BLEQ incrementaAlvo
+
+    ; verifica SW2
+    CMP R12, #2_00000001
+    IT EQ
+        BLEQ decrementaAlvo
+
+VoltaLoop
+
+    BL RefreshDisplay
+
+
+    ADD R8, R8, #5            ; N = 10
+    CMP R8, #1000            ; significa 1000ms
+    ITT EQ
+        MOVEQ R8, #0
+        BLEQ VerificaTemperatura
+
+    B MainLoop
+
+
 VerificaTemperatura
-	MOV R0, #1000 ; define o tempo de espera
-	BL EsperaXms
+	;MOV R0, #1000 ; define o tempo de espera
+	;BL EsperaXms
 
 	MOV R7, #0
 	MOV R0, #10
@@ -152,10 +182,10 @@ incrementaAlvo                                ; ao pressionar o SW1
 
     MOV R2, #LIMIT_MAX_TEMP_ALVO             ; a temperatura alvo não pode ser maior que 50
     CMP R1, R2
-    BLT MainLoop
+    BLT VoltaLoop
 
     STR R2, [R0]                            ; força a temperatura alvo ficar em 50
-    B MainLoop
+    B VoltaLoop
 
 
 decrementaAlvo                                 ; ao pressionar o SW1
@@ -167,10 +197,10 @@ decrementaAlvo                                 ; ao pressionar o SW1
 
     MOV R2, #LIMIT_MIM_TEMP_ALVO             ; a temperatura alvo não pode ser maior que 5
     CMP R1, R2
-    BGT MainLoop
+    BGT VoltaLoop
 
     STR R2, [R0]                            ; força a temperatura alvo ficar em 5
-    B MainLoop
+    B VoltaLoop
 
 
 
@@ -204,34 +234,71 @@ decrementaTempAtual                                 ; ao pressionar o SW1
     B MainLoop
 
 
-LigaUnidades
-    PUSH {LR}
-
-    MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
-    BL   PortB_Output       ; escreve em PB4/PB5
-    POP  {LR}
-    BX   LR	
+;LigaUnidades
+;    PUSH {LR}
+;
+;    MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
+;    BL   PortB_Output       ; escreve em PB4/PB5
+;    POP  {LR}
+;    BX   LR	
 	
-LigaDezenas
+;LigaDezenas
+;	PUSH {LR}
+	
+;	MOV  R5, #0      ; PB5 = 1, PB4 = 0
+;    BL   PortP_Output
+	
+;    MOV  R5, #2_10000       ; PB5 = 1, PB4 = 0
+;    BL   PortB_Output       ; escreve em PB4/PB5
+;    POP  {LR}
+;    BX   LR	
+	
+	
+LigaDisplay
 	PUSH {LR}
 	
-	MOV  R5, #0      ; PB5 = 1, PB4 = 0
-    BL   PortP_Output
+	MOV R0, #1
+	BL EsperaXms
 	
-    MOV  R5, #2_10000       ; PB5 = 1, PB4 = 0
-    BL   PortB_Output       ; escreve em PB4/PB5
-    POP  {LR}
+	;MOV  R5, #0   		; PB5 = 1, PB4 = 0
+	;BL   PortP_Output
+	BL PortB_Output
+	
+	MOV R0, #1
+	BL EsperaXms
+	
+    MOV  R5, #0       ; PB5 = 1, PB4 = 0
+    BL PortB_Output       ; escreve em PB4/PB5
+    
+	
+	POP  {LR}
     BX   LR	
 	
+;LigaLeds
+;	PUSH {LR}
+;	MOV  R5, #0
+;	BL   PortB_Output
+	
+;    MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
+;    BL   PortP_Output       ; escreve em PB4/PB5
+;    POP  {LR}
+;    BX   LR	
+
 LigaLeds
 	PUSH {LR}
-	MOV  R5, #0
-	BL   PortB_Output
+	MOV R0, #1
+	BL SysTick_Wait1ms
 	
-    MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
-    BL   PortP_Output       ; escreve em PB4/PB5
-    POP  {LR}
-    BX   LR	
+	BL PortP_Output
+	
+	MOV R0, #1
+	BL SysTick_Wait1ms
+	
+	MOV R5, #0
+	BL PortP_Output
+	
+	POP {LR}
+	BX LR
 	
 	
 RefreshDisplay
@@ -255,33 +322,29 @@ RefreshDisplay
 	; Dezenas (PB4) 
 	LDR R0, =DISPLAY_DEZENA
     BL  AtualizaValorDisplay
-    BL  LigaDezenas
-    MOV R0, #1
-    BL  EsperaXms
+	MOV R5, #2_10000
+    BL LigaDisplay
 	
     ; Unidades (PB5) 
 	LDR R0, =DISPLAY_UNIDADE
     BL  AtualizaValorDisplay
-    BL  LigaUnidades
-    MOV R0, #1
-    BL  EsperaXms
+	MOV R5, #2_100000
+    BL LigaDisplay
 
 	; Leds
 	LDR R0, =ADDRESS_ALVO
 	LDR R4, [R0]
     BL  PortAQ_Output
+	
+	MOV R5, #2_100000
     BL  LigaLeds
-    MOV R0, #1
-    BL  EsperaXms
 
     POP {LR}
     BX  LR	
 
-AtualizaLeds
-
 
 AtualizaValorDisplay
-	LDR R1, [R0]
+	LDR R1, [R0]	; endereço do valor da dezena/unidade
 	
     MOV  R7, #0
     PUSH {LR}
@@ -349,7 +412,8 @@ AtualizaValorDisplay
     BX   LR	
 	
 	
-EsperaXms ; usa o R0 como valor de espera
+; usa o R0 como valor de espera
+EsperaXms
 	PUSH {LR}
 	BL SysTick_Wait1ms
 	POP {LR}

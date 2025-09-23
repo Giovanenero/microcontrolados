@@ -23,7 +23,14 @@ DIGITO_6    EQU    2_1111101
 DIGITO_7	EQU    2_0000111	
 DIGITO_8    EQU    2_1111111
 DIGITO_9	EQU    2_1101111	
-	
+LIMIT_MIM_TEMP_ALVO        EQU 5
+LIMIT_MAX_TEMP_ALVO        EQU 50
+ADDRESS_ALVO     EQU 0x20000404
+ADDRESS_CURRENT     EQU 0x20000400
+DISPLAY_DEZENA     EQU 0x20000600
+DISPLAY_UNIDADE     EQU 0x20000604
+
+
 ; -------------------------------------------------------------------------------
 ; Área de Dados - Declarações de variáveis
 		AREA  DATA, ALIGN=2
@@ -54,8 +61,7 @@ DIGITO_9	EQU    2_1101111
         IMPORT  PortB_Output	        
 		IMPORT  PortJ_Input
         IMPORT  PortN_Output	        
-        IMPORT  PortP_Output
-		IMPORT 	PortLeds_Output
+        IMPORT  PortP_Output	
 
 
 ; -------------------------------------------------------------------------------
@@ -65,19 +71,31 @@ Start
 	BL SysTick_Init
 	BL GPIO_Init                 ;Chama a subrotina que inicializa os GPIO
 
-	; Define os valores iniciais (15) 
-	MOV R10, #1         ; dezenas
-	MOV R11, #5          ; unidades
-    
-    MOV R5, R11
-
-    BL  AtualizaValorDisplay
+	; Temperatura alvo
+	MOV R8, #25
+	
+	LDR R0, =ADDRESS_ALVO
+    STR R8, [R0]
+	
+	MOV R9, #15
+	LDR R0, =ADDRESS_CURRENT
+    STR R9, [R0]
+	
+	; Display
+	MOV R7, #1
+	LDR R0, =DISPLAY_DEZENA
+    STR R7, [R0]
+	
+	MOV R6, #5
+	LDR R0, =DISPLAY_UNIDADE
+    STR R6, [R0]
+	
+    ;BL  AtualizaValorDisplay
 	
 MainLoop
-
-	;BL RefreshDisplay
+	BL RefreshDisplay
 	BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
-	BL AtivaTransistores
+
 
 
 Verifica_SW1	
@@ -85,37 +103,113 @@ Verifica_SW1
 	BNE Verifica_SW2                 ;Se o teste falhou, volta para o início do laço principal
 
 	BL AcendeLed1
-	BL IncrementaValor
-	
-	;BL DesativaTransistorB
-
-	;BL AtivaTransistorP
-	
-	MOV  R4, #25
-    BL  PortLeds_Output
-	
-
+	BL incrementaAlvo
 	MOV R0, #500 ; define o tempo de espera
 	BL EsperaXms
 
 	
 Verifica_SW2	
-	CMP R12, #2_00000001		 ;Verifica se somente a chave SW1 está pressionada
-	BNE MainLoop                 ;Se o teste falhou, volta para o início do laço principal
+	CMP R12, #2_00000001			 ;Verifica se somente a chave SW1 está pressionada
+	BNE VerificaTemperatura                 ;Se o teste falhou, volta para o início do laço principal
 
-	BL AcendeLed1
-	BL DecrementaValor
+	BL AcendeLed2
+	BL decrementaAlvo
 		
 	MOV R0, #500 ; define o tempo de espera
 	BL EsperaXms
 	
-	B MainLoop                   ;Volta para o laço principal
+	                  ;Volta para o laço principal
+					  
 	
+VerificaTemperatura
+	MOV R0, #1000 ; define o tempo de espera
+	BL EsperaXms
+
+	MOV R7, #0
+	MOV R0, #10
+	MUL R7, R10, R0
+	ADD R7, R7, R11
 	
+	LDR R0, =ADDRESS_CURRENT
+    LDR R1, [R0]
+
+	LDR R0, =ADDRESS_ALVO
+    LDR R2, [R0]
+
+	CMP R1, R2
+	BGT decrementaTempAtual
+	BLT incrementaTempAtual
+	BL AcendeTodosLeds
+	
+	B MainLoop 
+
+
+incrementaAlvo                                ; ao pressionar o SW1
+	BL AcendeLed1
+    LDR R0, =ADDRESS_ALVO
+    LDR R1, [R0]
+    ADD R1, R1, #1
+    STR R1, [R0]
+
+    MOV R2, #LIMIT_MAX_TEMP_ALVO             ; a temperatura alvo não pode ser maior que 50
+    CMP R1, R2
+    BLT MainLoop
+
+    STR R2, [R0]                            ; força a temperatura alvo ficar em 50
+    B MainLoop
+
+
+decrementaAlvo                                 ; ao pressionar o SW1
+	BL AcendeLed2
+    LDR R0, =ADDRESS_ALVO     
+    LDR R1, [R0]
+    SUB R1, R1, #1
+    STR R1, [R0]
+
+    MOV R2, #LIMIT_MIM_TEMP_ALVO             ; a temperatura alvo não pode ser maior que 5
+    CMP R1, R2
+    BGT MainLoop
+
+    STR R2, [R0]                            ; força a temperatura alvo ficar em 5
+    B MainLoop
+
+
+
+incrementaTempAtual                                ; ao pressionar o SW1
+	BL AcendeLed1
+    LDR R0, =ADDRESS_CURRENT
+    LDR R1, [R0]
+    ADD R1, R1, #1
+    STR R1, [R0]
+
+    MOV R2, #LIMIT_MAX_TEMP_ALVO             ; a temperatura alvo não pode ser maior que 50
+    CMP R1, R2
+    BLT MainLoop
+
+    STR R2, [R0]                            ; força a temperatura alvo ficar em 50
+    B MainLoop
+
+
+decrementaTempAtual                                 ; ao pressionar o SW1
+	BL AcendeLed2
+    LDR R0, =ADDRESS_CURRENT     
+    LDR R1, [R0]
+    SUB R1, R1, #1
+    STR R1, [R0]
+
+    MOV R2, #LIMIT_MIM_TEMP_ALVO             ; a temperatura alvo não pode ser maior que 5
+    CMP R1, R2
+    BGT MainLoop
+
+    STR R2, [R0]                            ; força a temperatura alvo ficar em 5
+    B MainLoop
 
 
 LigaUnidades
     PUSH {LR}
+	MOV  R5, #0      ; PB5 = 1, PB4 = 0
+    BL   PortP_Output
+	
     MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
     BL   PortB_Output       ; escreve em PB4/PB5
     POP  {LR}
@@ -123,144 +217,133 @@ LigaUnidades
 	
 LigaDezenas
 	PUSH {LR}
+	
+	MOV  R5, #0      ; PB5 = 1, PB4 = 0
+    BL   PortP_Output
+	
     MOV  R5, #2_10000       ; PB5 = 1, PB4 = 0
     BL   PortB_Output       ; escreve em PB4/PB5
     POP  {LR}
     BX   LR	
 	
+LigaLeds
+	PUSH {LR}
+	MOV  R5, #0
+	BL   PortB_Output
+	
+    MOV  R5, #2_100000       ; PB5 = 1, PB4 = 0
+    BL   PortP_Output       ; escreve em PB4/PB5
+    POP  {LR}
+    BX   LR	
+	
+	
 RefreshDisplay
     PUSH {LR}
-
+	
+	LDR R0, =ADDRESS_CURRENT     
+    LDR R1, [R0]
+	
+	MOV R0, #10
+	UDIV R2, R1, R0
+	
+	MLS R3, R2, R0, R1
+	MOV R5, R11
+	
+	LDR R0, =DISPLAY_DEZENA
+	STR R2, [R0]
+	
+	LDR R0, =DISPLAY_UNIDADE
+	STR R3, [R0]
+	
     ; Unidades (PB5) 
-    MOV R5, R11
+	LDR R0, =DISPLAY_UNIDADE
     BL  AtualizaValorDisplay
     BL  LigaUnidades
     MOV R0, #1
     BL  EsperaXms
 
     ; Dezenas (PB4) 
-    MOV R5, R10
+	LDR R0, =DISPLAY_DEZENA
     BL  AtualizaValorDisplay
     BL  LigaDezenas
+    MOV R0, #1
+    BL  EsperaXms
+	
+	; Leds
+	LDR R0, =ADDRESS_ALVO
+	LDR R4, [R0]
+    BL  PortAQ_Output
+    BL  LigaLeds
     MOV R0, #1
     BL  EsperaXms
 
     POP {LR}
     BX  LR	
-		
-	
-IncrementaValor
-	PUSH {LR}
-	
-	CMP  R10, #5			; se a dezena estiver em 5 sai do loop e nao aumenta
-	BEQ SaiIncrementaValor
-	
-    ADD R11, #1
-    CMP R11, #10
-	BLT SaiIncrementaValor
-    MOV R11, #0
-	
-    BL  AumentaDezena
-	POP {LR}
 
-SaiIncrementaValor
-    BX  LR
+AtualizaLeds
 
 
-DecrementaValor
-	PUSH {LR}
-	
-	CMP  R10, #0      	; compara se a dezena e 0, se nao for pode diminuir o valor
-	BNE DiminuiValor
-	CMP  R11,  #5		; se a dezena for 0 e a unidade for igual a 5 nao diminui mais, sai da funcao
-	BEQ SaiDecrementaValor
-	
-DiminuiValor
-    SUB R11, #1
-    CMP R11, #0
-    BGE SaiDecrementaValor
-    MOV R11, #9
-    BL  DiminuiDezena
-	POP {LR}
-	
-SaiDecrementaValor
-    BX  LR
-
-
-AumentaDezena
-    ADD R10, #1
-    CMP R10, #10
-    IT  GE
-        MOVGE R10, #0
-    BX  LR
-
-DiminuiDezena
-    SUB R10, #1
-    CMP R10, #0
-    IT  LT
-        MOVLT R10, #9
-    BX  LR
-
-	
 AtualizaValorDisplay
+	LDR R1, [R0]
+	
     MOV  R7, #0
     PUSH {LR}
 
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_0
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_1
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_2
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_3
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_4
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_5
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_6
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_7
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_8  
         BLEQ  PortAQ_Output
 
     ADD  R7, #1
-    CMP  R5, R7
+    CMP  R1, R7
     ITT  EQ
         MOVEQ R4, #DIGITO_9  
         BLEQ  PortAQ_Output
@@ -277,48 +360,6 @@ EsperaXms ; usa o R0 como valor de espera
 	BX LR	
 	
 	
-	
-AtivaTransistores
-	PUSH {LR}
-	BL PortB_Output
-	
-	MOV R0, #1
-	BL EsperaXms
-	
-	MOV R5, #0
-	BL PortB_Output
-	
-	MOV R0, #1
-	BL EsperaXms
-	
-	BL PortP_Output
-	
-	MOV R0, #1
-	BL EsperaXms
-	
-	MOV R5, #0
-	BL PortP_Output
-	
-	POP {LR}
-	
-	
-	
-	
-	
-	
-	
-Verifica_Nenhuma
-	CMP	R0, #2_00000011			 ;Verifica se nenhuma chave está pressionada
-	BNE Verifica_SW1			 ;Se o teste viu que tem pelo menos alguma chave pressionada pula
-	BL ApagaLeds
-	;MOV R0, #0                   ;Não acender nenhum LED
-	;BL PortN_Output			 	 ;Chamar a função para não acender nenhum LED
-	B MainLoop					 ;Se o teste viu que nenhuma chave está pressionada, volta para o laço principal
-
-
-
-
-
 AcendeLed1
 	PUSH {LR}
 	MOV R0, #2_00000010          ; Acende o primeiro LED apenas
@@ -342,57 +383,21 @@ AcendeTodosLeds
 	POP {LR}
 	
 	BX LR	
-	
-ApagaLeds
-	PUSH {LR}
-	MOV R0, #0                   ;Não acende nenhum LED
-	BL PortN_Output
-	POP {LR}
-	
-	BX LR
 
 
-; Funcao para ativar o transistor de controle do ativamento dos displays
-AtivaTransistorB 
-	PUSH {LR}
-	MOV R0, #1    ; define o tempo de espera
-	BL EsperaXms
-	
-	BL PortB_Output
-	
-	MOV R0, #1
-	BL EsperaXms
-	
-	MOV R5, #0
-	BL PortB_Output
-	
-	POP {LR}
-	BX LR
-
-DesativaTransistorB 
-	PUSH {LR}
-	
-	MOV R5, #0
-	BL PortB_Output
-	
-	POP {LR}
-	BX LR
-	
-	
 ; Funcao para ativar o transistor de controle dos leds da PAT
 AtivaTransistorP
 	PUSH {LR}
-	MOV R0, #1
+	MOV R0, #10
 	BL EsperaXms
-
-	MOV R5, #2_100000
+	
 	BL PortP_Output
 	
-	MOV R0, #1
+	MOV R0, #10
 	BL EsperaXms
 	
-	;MOV R5, #0
-	;BL PortP_Output
+	MOV R5, #0
+	BL PortP_Output
 	
 	POP {LR}
 	BX LR						 ;return

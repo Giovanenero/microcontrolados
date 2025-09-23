@@ -54,504 +54,527 @@ ARM Macro Assembler    Page 1
    25 00000000 0000006F 
                        DIGITO_9
                                EQU              2_1101111
-   26 00000000         
-   27 00000000         ; ------------------------------------------------------
-                       -------------------------
-   28 00000000         ; Área de Dados - Declarações de variáveis
-   29 00000000                 AREA             DATA, ALIGN=2
-   30 00000000         ; Se alguma variável for chamada em outro arquivo
-   31 00000000         ;EXPORT  <var> [DATA,SIZE=<tam>]   ; Permite chamar a va
-                       riável <var> a 
-   32 00000000         ; partir de outro arquivo
+   26 00000000 00000005 
+                       LIMIT_MIM_TEMP_ALVO
+                               EQU              5
+   27 00000000 00000032 
+                       LIMIT_MAX_TEMP_ALVO
+                               EQU              50
+   28 00000000 20000404 
+                       ADDRESS_ALVO
+                               EQU              0x20000404
 
 
 
 ARM Macro Assembler    Page 2 
 
 
-   33 00000000         ;<var> SPACE <tam>                        ; Declara uma 
-                       variável de nome <var>
-   34 00000000         ; de <tam> bytes a partir da primeira 
-   35 00000000         ; posição da RAM  
-   36 00000000         
-   37 00000000         ; ------------------------------------------------------
+   29 00000000 20000400 
+                       ADDRESS_CURRENT
+                               EQU              0x20000400
+   30 00000000 20000600 
+                       DISPLAY_DEZENA
+                               EQU              0x20000600
+   31 00000000 20000604 
+                       DISPLAY_UNIDADE
+                               EQU              0x20000604
+   32 00000000         
+   33 00000000         
+   34 00000000         ; ------------------------------------------------------
                        -------------------------
-   38 00000000         ; Área de Código - Tudo abaixo da diretiva a seguir será
+   35 00000000         ; Área de Dados - Declarações de variáveis
+   36 00000000                 AREA             DATA, ALIGN=2
+   37 00000000         ; Se alguma variável for chamada em outro arquivo
+   38 00000000         ;EXPORT  <var> [DATA,SIZE=<tam>]   ; Permite chamar a va
+                       riável <var> a 
+   39 00000000         ; partir de outro arquivo
+   40 00000000         ;<var> SPACE <tam>                        ; Declara uma 
+                       variável de nome <var>
+   41 00000000         ; de <tam> bytes a partir da primeira 
+   42 00000000         ; posição da RAM  
+   43 00000000         
+   44 00000000         ; ------------------------------------------------------
+                       -------------------------
+   45 00000000         ; Área de Código - Tudo abaixo da diretiva a seguir será
                         armazenado na memória de 
-   39 00000000         ;                  código
-   40 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+   46 00000000         ;                  código
+   47 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
 2
-   41 00000000         
-   42 00000000         ; Se alguma função do arquivo for chamada em outro arqui
+   48 00000000         
+   49 00000000         ; Se alguma função do arquivo for chamada em outro arqui
                        vo 
-   43 00000000                 EXPORT           Start       ; Permite chamar a 
+   50 00000000                 EXPORT           Start       ; Permite chamar a 
                                                             função Start a part
                                                             ir de 
-   44 00000000         ; outro arquivo. No caso startup.s
-   45 00000000         
-   46 00000000         ; Se chamar alguma função externa 
-   47 00000000         ;IMPORT <func>              ; Permite chamar dentro dest
+   51 00000000         ; outro arquivo. No caso startup.s
+   52 00000000         
+   53 00000000         ; Se chamar alguma função externa 
+   54 00000000         ;IMPORT <func>              ; Permite chamar dentro dest
                        e arquivo uma 
-   48 00000000         ; função <func>
-   49 00000000                 IMPORT           PLL_Init
-   50 00000000                 IMPORT           SysTick_Init
-   51 00000000                 IMPORT           SysTick_Wait1ms
-   52 00000000                 IMPORT           GPIO_Init
-   53 00000000                 IMPORT           PortAQ_Output
-   54 00000000                 IMPORT           PortB_Output
-   55 00000000                 IMPORT           PortJ_Input
-   56 00000000                 IMPORT           PortN_Output
-   57 00000000                 IMPORT           PortP_Output
-   58 00000000                 IMPORT           PortLeds_Output
-   59 00000000         
-   60 00000000         
-   61 00000000         ; ------------------------------------------------------
+   55 00000000         ; função <func>
+   56 00000000                 IMPORT           PLL_Init
+   57 00000000                 IMPORT           SysTick_Init
+   58 00000000                 IMPORT           SysTick_Wait1ms
+   59 00000000                 IMPORT           GPIO_Init
+   60 00000000                 IMPORT           PortAQ_Output
+   61 00000000                 IMPORT           PortB_Output
+   62 00000000                 IMPORT           PortJ_Input
+   63 00000000                 IMPORT           PortN_Output
+   64 00000000                 IMPORT           PortP_Output
+   65 00000000         
+   66 00000000         
+   67 00000000         ; ------------------------------------------------------
                        -------------------------
-   62 00000000         ; Função main()
-   63 00000000         Start
-   64 00000000 F7FF FFFE       BL               PLL_Init    ;Chama a subrotina 
-                                                            para alterar o cloc
-                                                            k do microcontrolad
-                                                            or para 80MHz
-   65 00000004 F7FF FFFE       BL               SysTick_Init
-   66 00000008 F7FF FFFE       BL               GPIO_Init   ;Chama a subrotina 
-                                                            que inicializa os G
-                                                            PIO
-   67 0000000C         
-   68 0000000C         ; Define os valores iniciais (15) 
-   69 0000000C F04F 0A01       MOV              R10, #1     ; dezenas
-   70 00000010 F04F 0B05       MOV              R11, #5     ; unidades
-   71 00000014         
-   72 00000014 465D            MOV              R5, R11
-   73 00000016         
-   74 00000016 F000 F878       BL               AtualizaValorDisplay
-   75 0000001A         
-   76 0000001A         MainLoop
-   77 0000001A         
+   68 00000000         ; Função main()
+   69 00000000         Start
+   70 00000000 F7FF FFFE       BL               PLL_Init    ;Chama a subrotina 
 
 
 
 ARM Macro Assembler    Page 3 
 
 
-   78 0000001A         ;BL RefreshDisplay
-   79 0000001A F7FF FFFE       BL               PortJ_Input ;Chama a subrotina 
+                                                            para alterar o cloc
+                                                            k do microcontrolad
+                                                            or para 80MHz
+   71 00000004 F7FF FFFE       BL               SysTick_Init
+   72 00000008 F7FF FFFE       BL               GPIO_Init   ;Chama a subrotina 
+                                                            que inicializa os G
+                                                            PIO
+   73 0000000C         
+   74 0000000C         ; Temperatura alvo
+   75 0000000C F04F 0819       MOV              R8, #25
+   76 00000010         
+   77 00000010 489F            LDR              R0, =ADDRESS_ALVO
+   78 00000012 F8C0 8000       STR              R8, [R0]
+   79 00000016         
+   80 00000016 F04F 090F       MOV              R9, #15
+   81 0000001A 489E            LDR              R0, =ADDRESS_CURRENT
+   82 0000001C F8C0 9000       STR              R9, [R0]
+   83 00000020         
+   84 00000020         ; Display
+   85 00000020 F04F 0701       MOV              R7, #1
+   86 00000024 489C            LDR              R0, =DISPLAY_DEZENA
+   87 00000026 6007            STR              R7, [R0]
+   88 00000028         
+   89 00000028 F04F 0605       MOV              R6, #5
+   90 0000002C 489B            LDR              R0, =DISPLAY_UNIDADE
+   91 0000002E 6006            STR              R6, [R0]
+   92 00000030         
+   93 00000030         ;BL  AtualizaValorDisplay
+   94 00000030         
+   95 00000030         MainLoop
+   96 00000030 F000 F885       BL               RefreshDisplay
+   97 00000034 F7FF FFFE       BL               PortJ_Input ;Chama a subrotina 
                                                             que lê o estado das
                                                              chaves e coloca o 
                                                             resultado em R12
-   80 0000001E F000 F8C4       BL               AtivaTransistores
-   81 00000022         
-   82 00000022         
-   83 00000022         Verifica_SW1
-   84 00000022 F1BC 0F02       CMP              R12, #2_00000010 ;Verifica se s
+   98 00000038         
+   99 00000038         
+  100 00000038         
+  101 00000038         Verifica_SW1
+  102 00000038 F1BC 0F02       CMP              R12, #2_00000010 ;Verifica se s
                                                             omente a chave SW1 
                                                             está pressionada
-   85 00000026 D10B            BNE              Verifica_SW2 ;Se o teste falhou
+  103 0000003C D107            BNE              Verifica_SW2 ;Se o teste falhou
                                                             , volta para o iníc
                                                             io do laço principa
                                                             l
-   86 00000028         
-   87 00000028 F000 F8E0       BL               AcendeLed1
-   88 0000002C F000 F83A       BL               IncrementaValor
-   89 00000030         
-   90 00000030         ;BL DesativaTransistorB
-   91 00000030         
-   92 00000030         ;BL AtivaTransistorP
-   93 00000030         
-   94 00000030 F04F 0419       MOV              R4, #25
-   95 00000034 F7FF FFFE       BL               PortLeds_Output
-   96 00000038         
-   97 00000038         
-   98 00000038 F44F 70FA       MOV              R0, #500    ; define o tempo de
+  104 0000003E         
+  105 0000003E F000 F8FC       BL               AcendeLed1
+  106 00000042 F000 F824       BL               incrementaAlvo
+  107 00000046 F44F 70FA       MOV              R0, #500    ; define o tempo de
                                                              espera
-   99 0000003C F000 F8AF       BL               EsperaXms
-  100 00000040         
-  101 00000040         
-  102 00000040         Verifica_SW2
-  103 00000040 F1BC 0F01       CMP              R12, #2_00000001 ;Verifica se s
+  108 0000004A F000 F8F0       BL               EsperaXms
+  109 0000004E         
+  110 0000004E         
+  111 0000004E         Verifica_SW2
+  112 0000004E F1BC 0F01       CMP              R12, #2_00000001 ;Verifica se s
                                                             omente a chave SW1 
                                                             está pressionada
-  104 00000044 D1E9            BNE              MainLoop    ;Se o teste falhou,
-                                                             volta para o iníci
-                                                            o do laço principal
-                                                            
-  105 00000046         
-  106 00000046 F000 F8D1       BL               AcendeLed1
-  107 0000004A F000 F83B       BL               DecrementaValor
-  108 0000004E         
-  109 0000004E F44F 70FA       MOV              R0, #500    ; define o tempo de
-                                                             espera
-  110 00000052 F000 F8A4       BL               EsperaXms
-  111 00000056         
-  112 00000056 E7E0            B                MainLoop    ;Volta para o laço 
-                                                            principal
-  113 00000058         
-  114 00000058         
-  115 00000058         
-  116 00000058         
-  117 00000058         LigaUnidades
-  118 00000058 B500            PUSH             {LR}
-  119 0000005A F04F 0520       MOV              R5, #2_100000 
-                                                            ; PB5 = 1, PB4 = 0
+  113 00000052 D107            BNE              VerificaTemperatura ;Se o teste
 
 
 
 ARM Macro Assembler    Page 4 
 
 
-  120 0000005E F7FF FFFE       BL               PortB_Output ; escreve em PB4/P
-                                                            B5
-  121 00000062 F85D EB04       POP              {LR}
-  122 00000066 4770            BX               LR
-  123 00000068         
-  124 00000068         LigaDezenas
-  125 00000068 B500            PUSH             {LR}
-  126 0000006A F04F 0510       MOV              R5, #2_10000 ; PB5 = 1, PB4 = 0
+                                                             falhou, volta para
+                                                             o início do laço p
+                                                            rincipal
+  114 00000054         
+  115 00000054 F000 F8F9       BL               AcendeLed2
+  116 00000058 F000 F826       BL               decrementaAlvo
+  117 0000005C         
+  118 0000005C F44F 70FA       MOV              R0, #500    ; define o tempo de
+                                                             espera
+  119 00000060 F000 F8E5       BL               EsperaXms
+  120 00000064         
+  121 00000064         ;Volta para o laço principal
+  122 00000064         
+  123 00000064         
+  124 00000064         VerificaTemperatura
+  125 00000064 F44F 707A       MOV              R0, #1000   ; define o tempo de
+                                                             espera
+  126 00000068 F000 F8E1       BL               EsperaXms
+  127 0000006C         
+  128 0000006C F04F 0700       MOV              R7, #0
+  129 00000070 F04F 000A       MOV              R0, #10
+  130 00000074 FB0A F700       MUL              R7, R10, R0
+  131 00000078 445F            ADD              R7, R7, R11
+  132 0000007A         
+  133 0000007A 4886            LDR              R0, =ADDRESS_CURRENT
+  134 0000007C 6801            LDR              R1, [R0]
+  135 0000007E         
+  136 0000007E 4884            LDR              R0, =ADDRESS_ALVO
+  137 00000080 6802            LDR              R2, [R0]
+  138 00000082         
+  139 00000082 4291            CMP              R1, R2
+  140 00000084 DC2A            BGT              decrementaTempAtual
+  141 00000086 DB1C            BLT              incrementaTempAtual
+  142 00000088 F000 F8E7       BL               AcendeTodosLeds
+  143 0000008C         
+  144 0000008C E7D0            B                MainLoop
+  145 0000008E         
+  146 0000008E         
+  147 0000008E         incrementaAlvo                       ; ao pressionar o S
+                                                            W1
+  148 0000008E F000 F8D4       BL               AcendeLed1
+  149 00000092 487F            LDR              R0, =ADDRESS_ALVO
+  150 00000094 6801            LDR              R1, [R0]
+  151 00000096 F101 0101       ADD              R1, R1, #1
+  152 0000009A 6001            STR              R1, [R0]
+  153 0000009C         
+  154 0000009C F04F 0232       MOV              R2, #LIMIT_MAX_TEMP_ALVO ; a te
+                                                            mperatura alvo não 
+                                                            pode ser maior que 
+                                                            50
+  155 000000A0 4291            CMP              R1, R2
+  156 000000A2 DBC5            BLT              MainLoop
+  157 000000A4         
+  158 000000A4 6002            STR              R2, [R0]    ; força a temperatu
+                                                            ra alvo ficar em 50
                                                             
-  127 0000006E F7FF FFFE       BL               PortB_Output ; escreve em PB4/P
-                                                            B5
-  128 00000072 F85D EB04       POP              {LR}
-  129 00000076 4770            BX               LR
-  130 00000078         
-  131 00000078         RefreshDisplay
-  132 00000078 B500            PUSH             {LR}
-  133 0000007A         
-  134 0000007A         ; Unidades (PB5) 
-  135 0000007A 465D            MOV              R5, R11
-  136 0000007C F000 F845       BL               AtualizaValorDisplay
-  137 00000080 F7FF FFEA       BL               LigaUnidades
-  138 00000084 F04F 0001       MOV              R0, #1
-  139 00000088 F000 F889       BL               EsperaXms
-  140 0000008C         
-  141 0000008C         ; Dezenas (PB4) 
-  142 0000008C 4655            MOV              R5, R10
-  143 0000008E F000 F83C       BL               AtualizaValorDisplay
-  144 00000092 F7FF FFE9       BL               LigaDezenas
-  145 00000096 F04F 0001       MOV              R0, #1
-  146 0000009A F000 F880       BL               EsperaXms
-  147 0000009E         
-  148 0000009E F85D EB04       POP              {LR}
-  149 000000A2 4770            BX               LR
-  150 000000A4         
-  151 000000A4         
-  152 000000A4         IncrementaValor
-  153 000000A4 B500            PUSH             {LR}
-  154 000000A6         
-  155 000000A6 F1BA 0F05       CMP              R10, #5     ; se a dezena estiv
-                                                            er em 5 sai do loop
-                                                             e nao aumenta
-  156 000000AA D00A            BEQ              SaiIncrementaValor
-  157 000000AC         
-  158 000000AC F10B 0B01       ADD              R11, #1
-  159 000000B0 F1BB 0F0A       CMP              R11, #10
-  160 000000B4 DB05            BLT              SaiIncrementaValor
-  161 000000B6 F04F 0B00       MOV              R11, #0
-  162 000000BA         
-  163 000000BA F000 F816       BL               AumentaDezena
-  164 000000BE F85D EB04       POP              {LR}
-  165 000000C2         
-  166 000000C2         SaiIncrementaValor
-  167 000000C2 4770            BX               LR
-  168 000000C4         
-  169 000000C4         
-  170 000000C4         DecrementaValor
-  171 000000C4 B500            PUSH             {LR}
-  172 000000C6         
-  173 000000C6 F1BA 0F00       CMP              R10, #0     ; compara se a deze
+  159 000000A6 E7C3            B                MainLoop
+  160 000000A8         
+  161 000000A8         
 
 
 
 ARM Macro Assembler    Page 5 
 
 
-                                                            na e 0, se nao for 
-                                                            pode diminuir o val
-                                                            or
-  174 000000CA D102            BNE              DiminuiValor
-  175 000000CC F1BB 0F05       CMP              R11,  #5    ; se a dezena for 0
-                                                             e a unidade for ig
-                                                            ual a 5 nao diminui
-                                                             mais, sai da funca
-                                                            o
-  176 000000D0 D00A            BEQ              SaiDecrementaValor
-  177 000000D2         
-  178 000000D2         DiminuiValor
-  179 000000D2 F1AB 0B01       SUB              R11, #1
-  180 000000D6 F1BB 0F00       CMP              R11, #0
-  181 000000DA DA05            BGE              SaiDecrementaValor
-  182 000000DC F04F 0B09       MOV              R11, #9
-  183 000000E0 F000 F80B       BL               DiminuiDezena
-  184 000000E4 F85D EB04       POP              {LR}
-  185 000000E8         
-  186 000000E8         SaiDecrementaValor
-  187 000000E8 4770            BX               LR
-  188 000000EA         
-  189 000000EA         
-  190 000000EA         AumentaDezena
-  191 000000EA F10A 0A01       ADD              R10, #1
-  192 000000EE F1BA 0F0A       CMP              R10, #10
-  193 000000F2 BFA8            IT               GE
-  194 000000F4 F04F 0A00       MOVGE            R10, #0
-  195 000000F8 4770            BX               LR
-  196 000000FA         
-  197 000000FA         DiminuiDezena
-  198 000000FA F1AA 0A01       SUB              R10, #1
-  199 000000FE F1BA 0F00       CMP              R10, #0
-  200 00000102 BFB8            IT               LT
-  201 00000104 F04F 0A09       MOVLT            R10, #9
-  202 00000108 4770            BX               LR
-  203 0000010A         
-  204 0000010A         
-  205 0000010A         AtualizaValorDisplay
-  206 0000010A F04F 0700       MOV              R7, #0
-  207 0000010E B500            PUSH             {LR}
-  208 00000110         
-  209 00000110 42BD            CMP              R5, R7
-  210 00000112 BF04            ITT              EQ
-  211 00000114 243F            MOVEQ            R4, #DIGITO_0
-  212 00000116 F7FF FFFE       BLEQ             PortAQ_Output
-  213 0000011A         
-  214 0000011A F107 0701       ADD              R7, #1
-  215 0000011E 42BD            CMP              R5, R7
-  216 00000120 BF04            ITT              EQ
-  217 00000122 2406            MOVEQ            R4, #DIGITO_1
-  218 00000124 F7FF FFFE       BLEQ             PortAQ_Output
-  219 00000128         
-  220 00000128 F107 0701       ADD              R7, #1
-  221 0000012C 42BD            CMP              R5, R7
-  222 0000012E BF04            ITT              EQ
-  223 00000130 245B            MOVEQ            R4, #DIGITO_2
-  224 00000132 F7FF FFFE       BLEQ             PortAQ_Output
-  225 00000136         
+  162 000000A8         decrementaAlvo                       ; ao pressionar o S
+                                                            W1
+  163 000000A8 F000 F8CF       BL               AcendeLed2
+  164 000000AC 4878            LDR              R0, =ADDRESS_ALVO
+  165 000000AE 6801            LDR              R1, [R0]
+  166 000000B0 F1A1 0101       SUB              R1, R1, #1
+  167 000000B4 6001            STR              R1, [R0]
+  168 000000B6         
+  169 000000B6 F04F 0205       MOV              R2, #LIMIT_MIM_TEMP_ALVO ; a te
+                                                            mperatura alvo não 
+                                                            pode ser maior que 
+                                                            5
+  170 000000BA 4291            CMP              R1, R2
+  171 000000BC DCB8            BGT              MainLoop
+  172 000000BE         
+  173 000000BE 6002            STR              R2, [R0]    ; força a temperatu
+                                                            ra alvo ficar em 5
+  174 000000C0 E7B6            B                MainLoop
+  175 000000C2         
+  176 000000C2         
+  177 000000C2         
+  178 000000C2         incrementaTempAtual                  ; ao pressionar o S
+                                                            W1
+  179 000000C2 F000 F8BA       BL               AcendeLed1
+  180 000000C6 4873            LDR              R0, =ADDRESS_CURRENT
+  181 000000C8 6801            LDR              R1, [R0]
+  182 000000CA F101 0101       ADD              R1, R1, #1
+  183 000000CE 6001            STR              R1, [R0]
+  184 000000D0         
+  185 000000D0 F04F 0232       MOV              R2, #LIMIT_MAX_TEMP_ALVO ; a te
+                                                            mperatura alvo não 
+                                                            pode ser maior que 
+                                                            50
+  186 000000D4 4291            CMP              R1, R2
+  187 000000D6 DBAB            BLT              MainLoop
+  188 000000D8         
+  189 000000D8 6002            STR              R2, [R0]    ; força a temperatu
+                                                            ra alvo ficar em 50
+                                                            
+  190 000000DA E7A9            B                MainLoop
+  191 000000DC         
+  192 000000DC         
+  193 000000DC         decrementaTempAtual                  ; ao pressionar o S
+                                                            W1
+  194 000000DC F000 F8B5       BL               AcendeLed2
+  195 000000E0 486C            LDR              R0, =ADDRESS_CURRENT
+  196 000000E2 6801            LDR              R1, [R0]
+  197 000000E4 F1A1 0101       SUB              R1, R1, #1
+  198 000000E8 6001            STR              R1, [R0]
+  199 000000EA         
+  200 000000EA F04F 0205       MOV              R2, #LIMIT_MIM_TEMP_ALVO ; a te
+                                                            mperatura alvo não 
+                                                            pode ser maior que 
+                                                            5
+  201 000000EE 4291            CMP              R1, R2
+  202 000000F0 DC9E            BGT              MainLoop
+  203 000000F2         
+  204 000000F2 6002            STR              R2, [R0]    ; força a temperatu
+                                                            ra alvo ficar em 5
 
 
 
 ARM Macro Assembler    Page 6 
 
 
-  226 00000136 F107 0701       ADD              R7, #1
-  227 0000013A 42BD            CMP              R5, R7
-  228 0000013C BF04            ITT              EQ
-  229 0000013E 244F            MOVEQ            R4, #DIGITO_3
-  230 00000140 F7FF FFFE       BLEQ             PortAQ_Output
-  231 00000144         
-  232 00000144 F107 0701       ADD              R7, #1
-  233 00000148 42BD            CMP              R5, R7
-  234 0000014A BF04            ITT              EQ
-  235 0000014C 2466            MOVEQ            R4, #DIGITO_4
-  236 0000014E F7FF FFFE       BLEQ             PortAQ_Output
-  237 00000152         
-  238 00000152 F107 0701       ADD              R7, #1
-  239 00000156 42BD            CMP              R5, R7
-  240 00000158 BF04            ITT              EQ
-  241 0000015A 246D            MOVEQ            R4, #DIGITO_5
-  242 0000015C F7FF FFFE       BLEQ             PortAQ_Output
-  243 00000160         
-  244 00000160 F107 0701       ADD              R7, #1
-  245 00000164 42BD            CMP              R5, R7
-  246 00000166 BF04            ITT              EQ
-  247 00000168 247D            MOVEQ            R4, #DIGITO_6
-  248 0000016A F7FF FFFE       BLEQ             PortAQ_Output
-  249 0000016E         
-  250 0000016E F107 0701       ADD              R7, #1
-  251 00000172 42BD            CMP              R5, R7
-  252 00000174 BF04            ITT              EQ
-  253 00000176 2407            MOVEQ            R4, #DIGITO_7
-  254 00000178 F7FF FFFE       BLEQ             PortAQ_Output
-  255 0000017C         
-  256 0000017C F107 0701       ADD              R7, #1
-  257 00000180 42BD            CMP              R5, R7
-  258 00000182 BF04            ITT              EQ
-  259 00000184 247F            MOVEQ            R4, #DIGITO_8
-  260 00000186 F7FF FFFE       BLEQ             PortAQ_Output
-  261 0000018A         
-  262 0000018A F107 0701       ADD              R7, #1
-  263 0000018E 42BD            CMP              R5, R7
-  264 00000190 BF04            ITT              EQ
-  265 00000192 246F            MOVEQ            R4, #DIGITO_9
-  266 00000194 F7FF FFFE       BLEQ             PortAQ_Output
-  267 00000198         
-  268 00000198 F85D EB04       POP              {LR}
-  269 0000019C 4770            BX               LR
-  270 0000019E         
-  271 0000019E         
-  272 0000019E         EsperaXms                            ; usa o R0 como val
-                                                            or de espera
-  273 0000019E B500            PUSH             {LR}
-  274 000001A0 F7FF FFFE       BL               SysTick_Wait1ms
-  275 000001A4 F85D EB04       POP              {LR}
-  276 000001A8         
-  277 000001A8 4770            BX               LR
-  278 000001AA         
-  279 000001AA         
-  280 000001AA         
-  281 000001AA         AtivaTransistores
-  282 000001AA B500            PUSH             {LR}
-  283 000001AC F7FF FFFE       BL               PortB_Output
+  205 000000F4 E79C            B                MainLoop
+  206 000000F6         
+  207 000000F6         
+  208 000000F6         LigaUnidades
+  209 000000F6 B500            PUSH             {LR}
+  210 000000F8 F04F 0500       MOV              R5, #0      ; PB5 = 1, PB4 = 0
+  211 000000FC F7FF FFFE       BL               PortP_Output
+  212 00000100         
+  213 00000100 F04F 0520       MOV              R5, #2_100000 
+                                                            ; PB5 = 1, PB4 = 0
+  214 00000104 F7FF FFFE       BL               PortB_Output ; escreve em PB4/P
+                                                            B5
+  215 00000108 F85D EB04       POP              {LR}
+  216 0000010C 4770            BX               LR
+  217 0000010E         
+  218 0000010E         LigaDezenas
+  219 0000010E B500            PUSH             {LR}
+  220 00000110         
+  221 00000110 F04F 0500       MOV              R5, #0      ; PB5 = 1, PB4 = 0
+  222 00000114 F7FF FFFE       BL               PortP_Output
+  223 00000118         
+  224 00000118 F04F 0510       MOV              R5, #2_10000 ; PB5 = 1, PB4 = 0
+                                                            
+  225 0000011C F7FF FFFE       BL               PortB_Output ; escreve em PB4/P
+                                                            B5
+  226 00000120 F85D EB04       POP              {LR}
+  227 00000124 4770            BX               LR
+  228 00000126         
+  229 00000126         LigaLeds
+  230 00000126 B500            PUSH             {LR}
+  231 00000128 F04F 0500       MOV              R5, #0
+  232 0000012C F7FF FFFE       BL               PortB_Output
+  233 00000130         
+  234 00000130 F04F 0520       MOV              R5, #2_100000 
+                                                            ; PB5 = 1, PB4 = 0
+  235 00000134 F7FF FFFE       BL               PortP_Output ; escreve em PB4/P
+                                                            B5
+  236 00000138 F85D EB04       POP              {LR}
+  237 0000013C 4770            BX               LR
+  238 0000013E         
+  239 0000013E         
+  240 0000013E         RefreshDisplay
+  241 0000013E B500            PUSH             {LR}
+  242 00000140         
+  243 00000140 4854            LDR              R0, =ADDRESS_CURRENT
+  244 00000142 6801            LDR              R1, [R0]
+  245 00000144         
+  246 00000144 F04F 000A       MOV              R0, #10
+  247 00000148 FBB1 F2F0       UDIV             R2, R1, R0
+  248 0000014C         
+  249 0000014C FB02 1310       MLS              R3, R2, R0, R1
+  250 00000150 465D            MOV              R5, R11
+  251 00000152         
+  252 00000152 4851            LDR              R0, =DISPLAY_DEZENA
+  253 00000154 6002            STR              R2, [R0]
+  254 00000156         
+  255 00000156 4851            LDR              R0, =DISPLAY_UNIDADE
+  256 00000158 6003            STR              R3, [R0]
+  257 0000015A         
 
 
 
 ARM Macro Assembler    Page 7 
 
 
-  284 000001B0         
-  285 000001B0 F04F 0001       MOV              R0, #1
-  286 000001B4 F7FF FFF3       BL               EsperaXms
-  287 000001B8         
-  288 000001B8 F04F 0500       MOV              R5, #0
-  289 000001BC F7FF FFFE       BL               PortB_Output
-  290 000001C0         
-  291 000001C0 F04F 0001       MOV              R0, #1
-  292 000001C4 F7FF FFEB       BL               EsperaXms
-  293 000001C8         
-  294 000001C8 F7FF FFFE       BL               PortP_Output
-  295 000001CC         
-  296 000001CC F04F 0001       MOV              R0, #1
-  297 000001D0 F7FF FFE5       BL               EsperaXms
-  298 000001D4         
-  299 000001D4 F04F 0500       MOV              R5, #0
-  300 000001D8 F7FF FFFE       BL               PortP_Output
-  301 000001DC         
-  302 000001DC F85D EB04       POP              {LR}
-  303 000001E0         
-  304 000001E0         
-  305 000001E0         
-  306 000001E0         
-  307 000001E0         
-  308 000001E0         
-  309 000001E0         
-  310 000001E0         Verifica_Nenhuma
-  311 000001E0 2803            CMP              R0, #2_00000011 ;Verifica se ne
-                                                            nhuma chave está pr
-                                                            essionada
-  312 000001E2 F47F AF1E       BNE              Verifica_SW1 ;Se o teste viu qu
-                                                            e tem pelo menos al
-                                                            guma chave pression
-                                                            ada pula
-  313 000001E6 F000 F819       BL               ApagaLeds
-  314 000001EA         ;MOV R0, #0                   ;Não acender nenhum LED
-  315 000001EA         ;BL PortN_Output      ;Chamar a função para não acender 
-                       nenhum LED
-  316 000001EA E716            B                MainLoop    ;Se o teste viu que
-                                                             nenhuma chave está
-                                                             pressionada, volta
-                                                             para o laço princi
-                                                            pal
-  317 000001EC         
-  318 000001EC         
-  319 000001EC         
-  320 000001EC         
-  321 000001EC         
-  322 000001EC         AcendeLed1
-  323 000001EC B500            PUSH             {LR}
-  324 000001EE F04F 0002       MOV              R0, #2_00000010 ; Acende o prim
-                                                            eiro LED apenas
-  325 000001F2 F7FF FFFE       BL               PortN_Output
-  326 000001F6 F85D EB04       POP              {LR}
-  327 000001FA         
-  328 000001FA 4770            BX               LR
-  329 000001FC         
-  330 000001FC         AcendeLed2
-  331 000001FC B500            PUSH             {LR}
+  258 0000015A         ; Unidades (PB5) 
+  259 0000015A 4850            LDR              R0, =DISPLAY_UNIDADE
+  260 0000015C F000 F81C       BL               AtualizaValorDisplay
+  261 00000160 F7FF FFC9       BL               LigaUnidades
+  262 00000164 F04F 0001       MOV              R0, #1
+  263 00000168 F000 F861       BL               EsperaXms
+  264 0000016C         
+  265 0000016C         ; Dezenas (PB4) 
+  266 0000016C 484A            LDR              R0, =DISPLAY_DEZENA
+  267 0000016E F000 F813       BL               AtualizaValorDisplay
+  268 00000172 F7FF FFCC       BL               LigaDezenas
+  269 00000176 F04F 0001       MOV              R0, #1
+  270 0000017A F000 F858       BL               EsperaXms
+  271 0000017E         
+  272 0000017E         ; Leds
+  273 0000017E 4844            LDR              R0, =ADDRESS_ALVO
+  274 00000180 6804            LDR              R4, [R0]
+  275 00000182 F7FF FFFE       BL               PortAQ_Output
+  276 00000186 F7FF FFCE       BL               LigaLeds
+  277 0000018A F04F 0001       MOV              R0, #1
+  278 0000018E F000 F84E       BL               EsperaXms
+  279 00000192         
+  280 00000192 F85D EB04       POP              {LR}
+  281 00000196 4770            BX               LR
+  282 00000198         
+  283 00000198         AtualizaLeds
+  284 00000198         
+  285 00000198         
+  286 00000198         AtualizaValorDisplay
+  287 00000198 6801            LDR              R1, [R0]
+  288 0000019A         
+  289 0000019A F04F 0700       MOV              R7, #0
+  290 0000019E B500            PUSH             {LR}
+  291 000001A0         
+  292 000001A0 42B9            CMP              R1, R7
+  293 000001A2 BF04            ITT              EQ
+  294 000001A4 243F            MOVEQ            R4, #DIGITO_0
+  295 000001A6 F7FF FFFE       BLEQ             PortAQ_Output
+  296 000001AA         
+  297 000001AA F107 0701       ADD              R7, #1
+  298 000001AE 42B9            CMP              R1, R7
+  299 000001B0 BF04            ITT              EQ
+  300 000001B2 2406            MOVEQ            R4, #DIGITO_1
+  301 000001B4 F7FF FFFE       BLEQ             PortAQ_Output
+  302 000001B8         
+  303 000001B8 F107 0701       ADD              R7, #1
+  304 000001BC 42B9            CMP              R1, R7
+  305 000001BE BF04            ITT              EQ
+  306 000001C0 245B            MOVEQ            R4, #DIGITO_2
+  307 000001C2 F7FF FFFE       BLEQ             PortAQ_Output
+  308 000001C6         
+  309 000001C6 F107 0701       ADD              R7, #1
+  310 000001CA 42B9            CMP              R1, R7
+  311 000001CC BF04            ITT              EQ
+  312 000001CE 244F            MOVEQ            R4, #DIGITO_3
+  313 000001D0 F7FF FFFE       BLEQ             PortAQ_Output
+  314 000001D4         
+  315 000001D4 F107 0701       ADD              R7, #1
+  316 000001D8 42B9            CMP              R1, R7
 
 
 
 ARM Macro Assembler    Page 8 
 
 
-  332 000001FE F04F 0001       MOV              R0, #2_00000001 ; Acende o segu
-                                                            ndo LED apenas
-  333 00000202 F7FF FFFE       BL               PortN_Output
-  334 00000206 F85D EB04       POP              {LR}
-  335 0000020A         
-  336 0000020A 4770            BX               LR
-  337 0000020C         
-  338 0000020C         AcendeTodosLeds
-  339 0000020C B500            PUSH             {LR}
-  340 0000020E F04F 0003       MOV              R0, #2_00000011 ; Acende os doi
-                                                            s leds
-  341 00000212 F7FF FFFE       BL               PortN_Output
-  342 00000216 F85D EB04       POP              {LR}
-  343 0000021A         
-  344 0000021A 4770            BX               LR
-  345 0000021C         
-  346 0000021C         ApagaLeds
-  347 0000021C B500            PUSH             {LR}
-  348 0000021E F04F 0000       MOV              R0, #0      ;Não acende nenhum 
-                                                            LED
-  349 00000222 F7FF FFFE       BL               PortN_Output
-  350 00000226 F85D EB04       POP              {LR}
-  351 0000022A         
-  352 0000022A 4770            BX               LR
-  353 0000022C         
-  354 0000022C         
-  355 0000022C         ; Funcao para ativar o transistor de controle do ativame
-                       nto dos displays
-  356 0000022C         AtivaTransistorB
-  357 0000022C B500            PUSH             {LR}
-  358 0000022E F04F 0001       MOV              R0, #1      ; define o tempo de
-                                                             espera
-  359 00000232 F7FF FFB4       BL               EsperaXms
-  360 00000236         
-  361 00000236 F7FF FFFE       BL               PortB_Output
+  317 000001DA BF04            ITT              EQ
+  318 000001DC 2466            MOVEQ            R4, #DIGITO_4
+  319 000001DE F7FF FFFE       BLEQ             PortAQ_Output
+  320 000001E2         
+  321 000001E2 F107 0701       ADD              R7, #1
+  322 000001E6 42B9            CMP              R1, R7
+  323 000001E8 BF04            ITT              EQ
+  324 000001EA 246D            MOVEQ            R4, #DIGITO_5
+  325 000001EC F7FF FFFE       BLEQ             PortAQ_Output
+  326 000001F0         
+  327 000001F0 F107 0701       ADD              R7, #1
+  328 000001F4 42B9            CMP              R1, R7
+  329 000001F6 BF04            ITT              EQ
+  330 000001F8 247D            MOVEQ            R4, #DIGITO_6
+  331 000001FA F7FF FFFE       BLEQ             PortAQ_Output
+  332 000001FE         
+  333 000001FE F107 0701       ADD              R7, #1
+  334 00000202 42B9            CMP              R1, R7
+  335 00000204 BF04            ITT              EQ
+  336 00000206 2407            MOVEQ            R4, #DIGITO_7
+  337 00000208 F7FF FFFE       BLEQ             PortAQ_Output
+  338 0000020C         
+  339 0000020C F107 0701       ADD              R7, #1
+  340 00000210 42B9            CMP              R1, R7
+  341 00000212 BF04            ITT              EQ
+  342 00000214 247F            MOVEQ            R4, #DIGITO_8
+  343 00000216 F7FF FFFE       BLEQ             PortAQ_Output
+  344 0000021A         
+  345 0000021A F107 0701       ADD              R7, #1
+  346 0000021E 42B9            CMP              R1, R7
+  347 00000220 BF04            ITT              EQ
+  348 00000222 246F            MOVEQ            R4, #DIGITO_9
+  349 00000224 F7FF FFFE       BLEQ             PortAQ_Output
+  350 00000228         
+  351 00000228 F85D EB04       POP              {LR}
+  352 0000022C 4770            BX               LR
+  353 0000022E         
+  354 0000022E         
+  355 0000022E         EsperaXms                            ; usa o R0 como val
+                                                            or de espera
+  356 0000022E B500            PUSH             {LR}
+  357 00000230 F7FF FFFE       BL               SysTick_Wait1ms
+  358 00000234 F85D EB04       POP              {LR}
+  359 00000238         
+  360 00000238 4770            BX               LR
+  361 0000023A         
   362 0000023A         
-  363 0000023A F04F 0001       MOV              R0, #1
-  364 0000023E F7FF FFAE       BL               EsperaXms
-  365 00000242         
-  366 00000242 F04F 0500       MOV              R5, #0
-  367 00000246 F7FF FFFE       BL               PortB_Output
-  368 0000024A         
-  369 0000024A F85D EB04       POP              {LR}
-  370 0000024E 4770            BX               LR
-  371 00000250         
-  372 00000250         DesativaTransistorB
-  373 00000250 B500            PUSH             {LR}
-  374 00000252         
-  375 00000252 F04F 0500       MOV              R5, #0
-  376 00000256 F7FF FFFE       BL               PortB_Output
-  377 0000025A         
-  378 0000025A F85D EB04       POP              {LR}
-  379 0000025E 4770            BX               LR
-  380 00000260         
-  381 00000260         
-  382 00000260         ; Funcao para ativar o transistor de controle dos leds d
-                       a PAT
-  383 00000260         AtivaTransistorP
-  384 00000260 B500            PUSH             {LR}
+  363 0000023A         AcendeLed1
+  364 0000023A B500            PUSH             {LR}
+  365 0000023C F04F 0002       MOV              R0, #2_00000010 ; Acende o prim
+                                                            eiro LED apenas
+  366 00000240 F7FF FFFE       BL               PortN_Output
+  367 00000244 F85D EB04       POP              {LR}
+  368 00000248         
+  369 00000248 4770            BX               LR
+  370 0000024A         
+  371 0000024A         AcendeLed2
+  372 0000024A B500            PUSH             {LR}
+  373 0000024C F04F 0001       MOV              R0, #2_00000001 ; Acende o segu
 
 
 
 ARM Macro Assembler    Page 9 
 
 
-  385 00000262 F04F 0001       MOV              R0, #1
-  386 00000266 F7FF FF9A       BL               EsperaXms
+                                                            ndo LED apenas
+  374 00000250 F7FF FFFE       BL               PortN_Output
+  375 00000254 F85D EB04       POP              {LR}
+  376 00000258         
+  377 00000258 4770            BX               LR
+  378 0000025A         
+  379 0000025A         AcendeTodosLeds
+  380 0000025A B500            PUSH             {LR}
+  381 0000025C F04F 0003       MOV              R0, #2_00000011 ; Acende os doi
+                                                            s leds
+  382 00000260 F7FF FFFE       BL               PortN_Output
+  383 00000264 F85D EB04       POP              {LR}
+  384 00000268         
+  385 00000268 4770            BX               LR
+  386 0000026A         
   387 0000026A         
-  388 0000026A F04F 0520       MOV              R5, #2_100000
-  389 0000026E F7FF FFFE       BL               PortP_Output
-  390 00000272         
-  391 00000272 F04F 0001       MOV              R0, #1
-  392 00000276 F7FF FF92       BL               EsperaXms
-  393 0000027A         
-  394 0000027A         ;MOV R5, #0
-  395 0000027A         ;BL PortP_Output
-  396 0000027A         
-  397 0000027A F85D EB04       POP              {LR}
-  398 0000027E 4770            BX               LR          ;return
-  399 00000280         
-  400 00000280         
-  401 00000280         
-  402 00000280         ; ------------------------------------------------------
+  388 0000026A         ; Funcao para ativar o transistor de controle dos leds d
+                       a PAT
+  389 0000026A         AtivaTransistorP
+  390 0000026A B500            PUSH             {LR}
+  391 0000026C F04F 000A       MOV              R0, #10
+  392 00000270 F7FF FFDD       BL               EsperaXms
+  393 00000274         
+  394 00000274 F7FF FFFE       BL               PortP_Output
+  395 00000278         
+  396 00000278 F04F 000A       MOV              R0, #10
+  397 0000027C F7FF FFD7       BL               EsperaXms
+  398 00000280         
+  399 00000280 F04F 0500       MOV              R5, #0
+  400 00000284 F7FF FFFE       BL               PortP_Output
+  401 00000288         
+  402 00000288 F85D EB04       POP              {LR}
+  403 0000028C 4770            BX               LR          ;return
+  404 0000028E         
+  405 0000028E         
+  406 0000028E         
+  407 0000028E         ; ------------------------------------------------------
                        --------------------------------------------------------
                        -----------
-  403 00000280         ; Fim do Arquivo
-  404 00000280         ; ------------------------------------------------------
+  408 0000028E         ; Fim do Arquivo
+  409 0000028E         ; ------------------------------------------------------
                        --------------------------------------------------------
                        ----------- 
-  405 00000280                 ALIGN                        ;Garante que o fim 
+  410 0000028E 00 00           ALIGN                        ;Garante que o fim 
                                                             da seção está alinh
                                                             ada 
-  406 00000280                 END                          ;Fim do arquivo
+  411 00000290                 END                          ;Fim do arquivo
+              20000404 
+              20000400 
+              20000600 
+              20000604 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
 interwork --depend=.\objects\main.d -o.\objects\main.o -IC:\Users\rafa1\AppData
 \Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129 --predefine="__EVAL
@@ -567,7 +590,7 @@ DATA 00000000
 
 Symbol: DATA
    Definitions
-      At line 29 in file main.s
+      At line 36 in file main.s
    Uses
       None
 Comment: DATA unused
@@ -582,251 +605,238 @@ Relocatable symbols
 
 Symbol: .text
    Definitions
-      At line 40 in file main.s
+      At line 47 in file main.s
    Uses
       None
 Comment: .text unused
-AcendeLed1 000001EC
+AcendeLed1 0000023A
 
 Symbol: AcendeLed1
    Definitions
-      At line 322 in file main.s
+      At line 363 in file main.s
    Uses
-      At line 87 in file main.s
-      At line 106 in file main.s
+      At line 105 in file main.s
+      At line 148 in file main.s
+      At line 179 in file main.s
 
-AcendeLed2 000001FC
+AcendeLed2 0000024A
 
 Symbol: AcendeLed2
    Definitions
-      At line 330 in file main.s
+      At line 371 in file main.s
    Uses
-      None
-Comment: AcendeLed2 unused
-AcendeTodosLeds 0000020C
+      At line 115 in file main.s
+      At line 163 in file main.s
+      At line 194 in file main.s
+
+AcendeTodosLeds 0000025A
 
 Symbol: AcendeTodosLeds
    Definitions
-      At line 338 in file main.s
+      At line 379 in file main.s
    Uses
-      None
-Comment: AcendeTodosLeds unused
-ApagaLeds 0000021C
-
-Symbol: ApagaLeds
-   Definitions
-      At line 346 in file main.s
-   Uses
-      At line 313 in file main.s
-Comment: ApagaLeds used once
-AtivaTransistorB 0000022C
-
-Symbol: AtivaTransistorB
-   Definitions
-      At line 356 in file main.s
-   Uses
-      None
-Comment: AtivaTransistorB unused
-AtivaTransistorP 00000260
+      At line 142 in file main.s
+Comment: AcendeTodosLeds used once
+AtivaTransistorP 0000026A
 
 Symbol: AtivaTransistorP
    Definitions
-      At line 383 in file main.s
+      At line 389 in file main.s
    Uses
       None
 Comment: AtivaTransistorP unused
-AtivaTransistores 000001AA
+AtualizaLeds 00000198
 
+Symbol: AtualizaLeds
+   Definitions
+      At line 283 in file main.s
+   Uses
+      None
+Comment: AtualizaLeds unused
+AtualizaValorDisplay 00000198
+
+Symbol: AtualizaValorDisplay
+   Definitions
+      At line 286 in file main.s
+   Uses
+      At line 260 in file main.s
 
 
 
 ARM Macro Assembler    Page 2 Alphabetic symbol ordering
 Relocatable symbols
 
-Symbol: AtivaTransistores
-   Definitions
-      At line 281 in file main.s
-   Uses
-      At line 80 in file main.s
-Comment: AtivaTransistores used once
-AtualizaValorDisplay 0000010A
+      At line 267 in file main.s
 
-Symbol: AtualizaValorDisplay
-   Definitions
-      At line 205 in file main.s
-   Uses
-      At line 74 in file main.s
-      At line 136 in file main.s
-      At line 143 in file main.s
-
-AumentaDezena 000000EA
-
-Symbol: AumentaDezena
-   Definitions
-      At line 190 in file main.s
-   Uses
-      At line 163 in file main.s
-Comment: AumentaDezena used once
-DecrementaValor 000000C4
-
-Symbol: DecrementaValor
-   Definitions
-      At line 170 in file main.s
-   Uses
-      At line 107 in file main.s
-Comment: DecrementaValor used once
-DesativaTransistorB 00000250
-
-Symbol: DesativaTransistorB
-   Definitions
-      At line 372 in file main.s
-   Uses
-      None
-Comment: DesativaTransistorB unused
-DiminuiDezena 000000FA
-
-Symbol: DiminuiDezena
-   Definitions
-      At line 197 in file main.s
-   Uses
-      At line 183 in file main.s
-Comment: DiminuiDezena used once
-DiminuiValor 000000D2
-
-Symbol: DiminuiValor
-   Definitions
-      At line 178 in file main.s
-   Uses
-      At line 174 in file main.s
-Comment: DiminuiValor used once
-EsperaXms 0000019E
+EsperaXms 0000022E
 
 Symbol: EsperaXms
+   Definitions
+      At line 355 in file main.s
+   Uses
+      At line 108 in file main.s
+      At line 119 in file main.s
+      At line 126 in file main.s
+      At line 263 in file main.s
+      At line 270 in file main.s
+      At line 278 in file main.s
+      At line 392 in file main.s
+      At line 397 in file main.s
+
+LigaDezenas 0000010E
+
+Symbol: LigaDezenas
+   Definitions
+      At line 218 in file main.s
+   Uses
+      At line 268 in file main.s
+Comment: LigaDezenas used once
+LigaLeds 00000126
+
+Symbol: LigaLeds
+   Definitions
+      At line 229 in file main.s
+   Uses
+      At line 276 in file main.s
+Comment: LigaLeds used once
+LigaUnidades 000000F6
+
+Symbol: LigaUnidades
+   Definitions
+      At line 208 in file main.s
+   Uses
+      At line 261 in file main.s
+Comment: LigaUnidades used once
+MainLoop 00000030
+
+Symbol: MainLoop
+   Definitions
+      At line 95 in file main.s
+   Uses
+      At line 144 in file main.s
+      At line 156 in file main.s
+      At line 159 in file main.s
+      At line 171 in file main.s
+      At line 174 in file main.s
+      At line 187 in file main.s
+      At line 190 in file main.s
+      At line 202 in file main.s
+      At line 205 in file main.s
+
+RefreshDisplay 0000013E
+
 
 
 
 ARM Macro Assembler    Page 3 Alphabetic symbol ordering
 Relocatable symbols
 
+Symbol: RefreshDisplay
    Definitions
-      At line 272 in file main.s
+      At line 240 in file main.s
    Uses
-      At line 99 in file main.s
-      At line 110 in file main.s
-      At line 139 in file main.s
-      At line 146 in file main.s
-      At line 286 in file main.s
-      At line 292 in file main.s
-      At line 297 in file main.s
-      At line 359 in file main.s
-      At line 364 in file main.s
-      At line 386 in file main.s
-      At line 392 in file main.s
+      At line 96 in file main.s
+Comment: RefreshDisplay used once
+Start 00000000
 
-IncrementaValor 000000A4
-
-Symbol: IncrementaValor
+Symbol: Start
    Definitions
-      At line 152 in file main.s
+      At line 69 in file main.s
    Uses
-      At line 88 in file main.s
-Comment: IncrementaValor used once
-LigaDezenas 00000068
+      At line 50 in file main.s
+Comment: Start used once
+VerificaTemperatura 00000064
 
-Symbol: LigaDezenas
+Symbol: VerificaTemperatura
    Definitions
       At line 124 in file main.s
    Uses
-      At line 144 in file main.s
-Comment: LigaDezenas used once
-LigaUnidades 00000058
+      At line 113 in file main.s
+Comment: VerificaTemperatura used once
+Verifica_SW1 00000038
 
-Symbol: LigaUnidades
+Symbol: Verifica_SW1
    Definitions
-      At line 117 in file main.s
-   Uses
-      At line 137 in file main.s
-Comment: LigaUnidades used once
-MainLoop 0000001A
-
-Symbol: MainLoop
-   Definitions
-      At line 76 in file main.s
-   Uses
-      At line 104 in file main.s
-      At line 112 in file main.s
-      At line 316 in file main.s
-
-RefreshDisplay 00000078
-
-Symbol: RefreshDisplay
-   Definitions
-      At line 131 in file main.s
+      At line 101 in file main.s
    Uses
       None
-Comment: RefreshDisplay unused
-SaiDecrementaValor 000000E8
+Comment: Verifica_SW1 unused
+Verifica_SW2 0000004E
 
+Symbol: Verifica_SW2
+   Definitions
+      At line 111 in file main.s
+   Uses
+      At line 103 in file main.s
+Comment: Verifica_SW2 used once
+decrementaAlvo 000000A8
+
+Symbol: decrementaAlvo
+   Definitions
+      At line 162 in file main.s
+   Uses
+      At line 116 in file main.s
+Comment: decrementaAlvo used once
+decrementaTempAtual 000000DC
+
+Symbol: decrementaTempAtual
+   Definitions
+      At line 193 in file main.s
+   Uses
+      At line 140 in file main.s
+Comment: decrementaTempAtual used once
+incrementaAlvo 0000008E
+
+Symbol: incrementaAlvo
+   Definitions
+      At line 147 in file main.s
 
 
 
 ARM Macro Assembler    Page 4 Alphabetic symbol ordering
 Relocatable symbols
 
-Symbol: SaiDecrementaValor
-   Definitions
-      At line 186 in file main.s
    Uses
-      At line 176 in file main.s
-      At line 181 in file main.s
+      At line 106 in file main.s
+Comment: incrementaAlvo used once
+incrementaTempAtual 000000C2
 
-SaiIncrementaValor 000000C2
-
-Symbol: SaiIncrementaValor
+Symbol: incrementaTempAtual
    Definitions
-      At line 166 in file main.s
+      At line 178 in file main.s
    Uses
-      At line 156 in file main.s
-      At line 160 in file main.s
-
-Start 00000000
-
-Symbol: Start
-   Definitions
-      At line 63 in file main.s
-   Uses
-      At line 43 in file main.s
-Comment: Start used once
-Verifica_Nenhuma 000001E0
-
-Symbol: Verifica_Nenhuma
-   Definitions
-      At line 310 in file main.s
-   Uses
-      None
-Comment: Verifica_Nenhuma unused
-Verifica_SW1 00000022
-
-Symbol: Verifica_SW1
-   Definitions
-      At line 83 in file main.s
-   Uses
-      At line 312 in file main.s
-Comment: Verifica_SW1 used once
-Verifica_SW2 00000040
-
-Symbol: Verifica_SW2
-   Definitions
-      At line 102 in file main.s
-   Uses
-      At line 85 in file main.s
-Comment: Verifica_SW2 used once
-26 symbols
+      At line 141 in file main.s
+Comment: incrementaTempAtual used once
+21 symbols
 
 
 
 ARM Macro Assembler    Page 1 Alphabetic symbol ordering
 Absolute symbols
+
+ADDRESS_ALVO 20000404
+
+Symbol: ADDRESS_ALVO
+   Definitions
+      At line 28 in file main.s
+   Uses
+      At line 77 in file main.s
+      At line 136 in file main.s
+      At line 149 in file main.s
+      At line 164 in file main.s
+      At line 273 in file main.s
+
+ADDRESS_CURRENT 20000400
+
+Symbol: ADDRESS_CURRENT
+   Definitions
+      At line 29 in file main.s
+   Uses
+      At line 81 in file main.s
+      At line 133 in file main.s
+      At line 180 in file main.s
+      At line 195 in file main.s
+      At line 243 in file main.s
 
 DIGITO_0 0000003F
 
@@ -834,7 +844,7 @@ Symbol: DIGITO_0
    Definitions
       At line 16 in file main.s
    Uses
-      At line 211 in file main.s
+      At line 294 in file main.s
 Comment: DIGITO_0 used once
 DIGITO_1 00000006
 
@@ -842,7 +852,7 @@ Symbol: DIGITO_1
    Definitions
       At line 17 in file main.s
    Uses
-      At line 217 in file main.s
+      At line 300 in file main.s
 Comment: DIGITO_1 used once
 DIGITO_2 0000005B
 
@@ -850,7 +860,7 @@ Symbol: DIGITO_2
    Definitions
       At line 18 in file main.s
    Uses
-      At line 223 in file main.s
+      At line 306 in file main.s
 Comment: DIGITO_2 used once
 DIGITO_3 0000004F
 
@@ -858,35 +868,11 @@ Symbol: DIGITO_3
    Definitions
       At line 19 in file main.s
    Uses
-      At line 229 in file main.s
+      At line 312 in file main.s
 Comment: DIGITO_3 used once
 DIGITO_4 00000066
 
 Symbol: DIGITO_4
-   Definitions
-      At line 20 in file main.s
-   Uses
-      At line 235 in file main.s
-Comment: DIGITO_4 used once
-DIGITO_5 0000006D
-
-Symbol: DIGITO_5
-   Definitions
-      At line 21 in file main.s
-   Uses
-      At line 241 in file main.s
-Comment: DIGITO_5 used once
-DIGITO_6 0000007D
-
-Symbol: DIGITO_6
-   Definitions
-      At line 22 in file main.s
-   Uses
-      At line 247 in file main.s
-Comment: DIGITO_6 used once
-DIGITO_7 00000007
-
-Symbol: DIGITO_7
 
 
 
@@ -894,9 +880,33 @@ ARM Macro Assembler    Page 2 Alphabetic symbol ordering
 Absolute symbols
 
    Definitions
+      At line 20 in file main.s
+   Uses
+      At line 318 in file main.s
+Comment: DIGITO_4 used once
+DIGITO_5 0000006D
+
+Symbol: DIGITO_5
+   Definitions
+      At line 21 in file main.s
+   Uses
+      At line 324 in file main.s
+Comment: DIGITO_5 used once
+DIGITO_6 0000007D
+
+Symbol: DIGITO_6
+   Definitions
+      At line 22 in file main.s
+   Uses
+      At line 330 in file main.s
+Comment: DIGITO_6 used once
+DIGITO_7 00000007
+
+Symbol: DIGITO_7
+   Definitions
       At line 23 in file main.s
    Uses
-      At line 253 in file main.s
+      At line 336 in file main.s
 Comment: DIGITO_7 used once
 DIGITO_8 0000007F
 
@@ -904,7 +914,7 @@ Symbol: DIGITO_8
    Definitions
       At line 24 in file main.s
    Uses
-      At line 259 in file main.s
+      At line 342 in file main.s
 Comment: DIGITO_8 used once
 DIGITO_9 0000006F
 
@@ -912,9 +922,53 @@ Symbol: DIGITO_9
    Definitions
       At line 25 in file main.s
    Uses
-      At line 265 in file main.s
+      At line 348 in file main.s
 Comment: DIGITO_9 used once
-10 symbols
+DISPLAY_DEZENA 20000600
+
+Symbol: DISPLAY_DEZENA
+   Definitions
+      At line 30 in file main.s
+   Uses
+      At line 86 in file main.s
+      At line 252 in file main.s
+      At line 266 in file main.s
+
+DISPLAY_UNIDADE 20000604
+
+Symbol: DISPLAY_UNIDADE
+   Definitions
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 31 in file main.s
+   Uses
+      At line 90 in file main.s
+      At line 255 in file main.s
+      At line 259 in file main.s
+
+LIMIT_MAX_TEMP_ALVO 00000032
+
+Symbol: LIMIT_MAX_TEMP_ALVO
+   Definitions
+      At line 27 in file main.s
+   Uses
+      At line 154 in file main.s
+      At line 185 in file main.s
+
+LIMIT_MIM_TEMP_ALVO 00000005
+
+Symbol: LIMIT_MIM_TEMP_ALVO
+   Definitions
+      At line 26 in file main.s
+   Uses
+      At line 169 in file main.s
+      At line 200 in file main.s
+
+16 symbols
 
 
 
@@ -925,107 +979,97 @@ GPIO_Init 00000000
 
 Symbol: GPIO_Init
    Definitions
-      At line 52 in file main.s
+      At line 59 in file main.s
    Uses
-      At line 66 in file main.s
+      At line 72 in file main.s
 Comment: GPIO_Init used once
 PLL_Init 00000000
 
 Symbol: PLL_Init
    Definitions
-      At line 49 in file main.s
+      At line 56 in file main.s
    Uses
-      At line 64 in file main.s
+      At line 70 in file main.s
 Comment: PLL_Init used once
 PortAQ_Output 00000000
 
 Symbol: PortAQ_Output
    Definitions
-      At line 53 in file main.s
+      At line 60 in file main.s
    Uses
-      At line 212 in file main.s
-      At line 218 in file main.s
-      At line 224 in file main.s
-      At line 230 in file main.s
-      At line 236 in file main.s
-      At line 242 in file main.s
-      At line 248 in file main.s
-      At line 254 in file main.s
-      At line 260 in file main.s
-      At line 266 in file main.s
+      At line 275 in file main.s
+      At line 295 in file main.s
+      At line 301 in file main.s
+      At line 307 in file main.s
+      At line 313 in file main.s
+      At line 319 in file main.s
+      At line 325 in file main.s
+      At line 331 in file main.s
+      At line 337 in file main.s
+      At line 343 in file main.s
+      At line 349 in file main.s
 
 PortB_Output 00000000
 
 Symbol: PortB_Output
    Definitions
-      At line 54 in file main.s
+      At line 61 in file main.s
    Uses
-      At line 120 in file main.s
-      At line 127 in file main.s
-      At line 283 in file main.s
-      At line 289 in file main.s
-      At line 361 in file main.s
-      At line 367 in file main.s
-      At line 376 in file main.s
+      At line 214 in file main.s
+      At line 225 in file main.s
+      At line 232 in file main.s
 
 PortJ_Input 00000000
 
 Symbol: PortJ_Input
    Definitions
-      At line 55 in file main.s
+      At line 62 in file main.s
    Uses
-      At line 79 in file main.s
+      At line 97 in file main.s
 Comment: PortJ_Input used once
-PortLeds_Output 00000000
+PortN_Output 00000000
 
-Symbol: PortLeds_Output
+Symbol: PortN_Output
    Definitions
+      At line 63 in file main.s
+   Uses
+      At line 366 in file main.s
 
 
 
 ARM Macro Assembler    Page 2 Alphabetic symbol ordering
 External symbols
 
-      At line 58 in file main.s
-   Uses
-      At line 95 in file main.s
-Comment: PortLeds_Output used once
-PortN_Output 00000000
-
-Symbol: PortN_Output
-   Definitions
-      At line 56 in file main.s
-   Uses
-      At line 325 in file main.s
-      At line 333 in file main.s
-      At line 341 in file main.s
-      At line 349 in file main.s
+      At line 374 in file main.s
+      At line 382 in file main.s
 
 PortP_Output 00000000
 
 Symbol: PortP_Output
    Definitions
-      At line 57 in file main.s
+      At line 64 in file main.s
    Uses
-      At line 294 in file main.s
-      At line 300 in file main.s
-      At line 389 in file main.s
+      At line 211 in file main.s
+      At line 222 in file main.s
+      At line 235 in file main.s
+      At line 394 in file main.s
+      At line 400 in file main.s
 
 SysTick_Init 00000000
 
 Symbol: SysTick_Init
    Definitions
-      At line 50 in file main.s
+      At line 57 in file main.s
    Uses
-      At line 65 in file main.s
+      At line 71 in file main.s
 Comment: SysTick_Init used once
 SysTick_Wait1ms 00000000
 
 Symbol: SysTick_Wait1ms
    Definitions
-      At line 51 in file main.s
+      At line 58 in file main.s
    Uses
-      At line 274 in file main.s
+      At line 357 in file main.s
 Comment: SysTick_Wait1ms used once
-10 symbols
-381 symbols in table
+9 symbols
+383 symbols in table

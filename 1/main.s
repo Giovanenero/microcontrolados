@@ -103,32 +103,6 @@ inicializaMemoria
 	
 	BX LR
 
-	
-;MainLoop
-	;BL PortJ_Input				 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
-	
-	;; verifica SW1
-	;CMP R12, #2_00000010
-	;IT EQ
-		;BLEQ incrementaAlvo
-	
-	;; verifica SW2
-	;CMP R12, #2_00000001
-	;IT EQ
-		;BLEQ decrementaAlvo
-	
-;VoltaLoop
-	
-	;BL RefreshDisplay
-		
-	;;MOV R0, #300
-	;;BL EsperaXms
-	;BL VerificaTemperatura
-	
-	;B MainLoop
-	
-	;;MOV R0, #500 ; define o tempo de espera
-	;;BL EsperaXms
 
 MainLoop
     BL PortJ_Input                 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
@@ -266,26 +240,6 @@ decrementaTempAtual                                 ; ao pressionar o SW1
     STR R2, [R0]                            ; força a temperatura alvo ficar em 5
     B MainLoop
 
-
-;LigaUnidades
-;    PUSH {LR}
-;
-;    MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
-;    BL   PortB_Output       ; escreve em PB4/PB5
-;    POP  {LR}
-;    BX   LR	
-	
-;LigaDezenas
-;	PUSH {LR}
-	
-;	MOV  R5, #0      ; PB5 = 1, PB4 = 0
-;    BL   PortP_Output
-	
-;    MOV  R5, #2_10000       ; PB5 = 1, PB4 = 0
-;    BL   PortB_Output       ; escreve em PB4/PB5
-;    POP  {LR}
-;    BX   LR	
-	
 	
 LigaDisplay
 	PUSH {LR}
@@ -306,16 +260,7 @@ LigaDisplay
 	
 	POP  {LR}
     BX   LR	
-	
-;LigaLeds
-;	PUSH {LR}
-;	MOV  R5, #0
-;	BL   PortB_Output
-	
-;    MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
-;    BL   PortP_Output       ; escreve em PB4/PB5
-;    POP  {LR}
-;    BX   LR	
+
 
 LigaLeds
 	PUSH {LR}
@@ -452,8 +397,7 @@ EsperaXms
 	POP {LR}
 	
 	BX LR	
-	
-	
+		
 AcendeLed1
 	PUSH {LR}
 	MOV R0, #2_00000010          ; Acende o primeiro LED apenas
@@ -477,25 +421,6 @@ AcendeTodosLeds
 	POP {LR}
 	
 	BX LR	
-
-
-; Funcao para ativar o transistor de controle dos leds da PAT
-AtivaTransistorP
-	PUSH {LR}
-	MOV R0, #10
-	BL EsperaXms
-	
-	BL PortP_Output
-	
-	MOV R0, #10
-	BL EsperaXms
-	
-	MOV R5, #0
-	BL PortP_Output
-	
-	POP {LR}
-	BX LR						 ;return
-
 
 
 ; -------------------------------------------------------------------------------------------------------------------------

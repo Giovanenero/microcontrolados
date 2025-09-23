@@ -118,7 +118,6 @@ Verifica_SW2
 	MOV R0, #500 ; define o tempo de espera
 	BL EsperaXms
 	
-	                  ;Volta para o laço principal
 					  
 	
 VerificaTemperatura
@@ -207,9 +206,7 @@ decrementaTempAtual                                 ; ao pressionar o SW1
 
 LigaUnidades
     PUSH {LR}
-	MOV  R5, #0      ; PB5 = 1, PB4 = 0
-    BL   PortP_Output
-	
+
     MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
     BL   PortB_Output       ; escreve em PB4/PB5
     POP  {LR}
@@ -231,7 +228,7 @@ LigaLeds
 	MOV  R5, #0
 	BL   PortB_Output
 	
-    MOV  R5, #2_100000       ; PB5 = 1, PB4 = 0
+    MOV  R5, #2_100000      ; PB5 = 1, PB4 = 0
     BL   PortP_Output       ; escreve em PB4/PB5
     POP  {LR}
     BX   LR	
@@ -255,6 +252,13 @@ RefreshDisplay
 	LDR R0, =DISPLAY_UNIDADE
 	STR R3, [R0]
 	
+	; Dezenas (PB4) 
+	LDR R0, =DISPLAY_DEZENA
+    BL  AtualizaValorDisplay
+    BL  LigaDezenas
+    MOV R0, #1
+    BL  EsperaXms
+	
     ; Unidades (PB5) 
 	LDR R0, =DISPLAY_UNIDADE
     BL  AtualizaValorDisplay
@@ -262,13 +266,6 @@ RefreshDisplay
     MOV R0, #1
     BL  EsperaXms
 
-    ; Dezenas (PB4) 
-	LDR R0, =DISPLAY_DEZENA
-    BL  AtualizaValorDisplay
-    BL  LigaDezenas
-    MOV R0, #1
-    BL  EsperaXms
-	
 	; Leds
 	LDR R0, =ADDRESS_ALVO
 	LDR R4, [R0]

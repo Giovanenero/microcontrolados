@@ -262,7 +262,7 @@ EsperaGPIO  LDR     R1, [R0]						;Lê da memória o conteúdo do endereço do regis
 ; FUNCOES PORT OUTPUT
 ; -------------------------------------------------------------------------------
 
-; Função PortAQ_Output = Liga/Desliga displays
+; Função PortAQ_Output = Liga/Desliga displays e leds
 PortAQ_Output
 	LDR	R1, =GPIO_PORTA_AHB_DATA_R		    ;Carrega o valor do offset do data register
 	AND R0, R4, #2_11110000

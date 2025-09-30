@@ -157,7 +157,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>257</SubType>
-          <ItemText>0x20000600</ItemText>
+          <ItemText>0x2000060c</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>

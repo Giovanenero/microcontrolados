@@ -59,9 +59,13 @@ ADDRESS_WRITE_500MS	EQU	0x20000608
 		IMPORT  GPIO_Init
         IMPORT  PortAQ_Output
         IMPORT  PortB_Output	        
-		IMPORT  PortJ_Input
+		IMPORT  GPIOPortJ_Handler
         IMPORT  PortN_Output	        
-        IMPORT  PortP_Output	
+        IMPORT  PortP_Output
+		EXPORT  incrementaAlvo
+		EXPORT  decrementaAlvo
+		IMPORT voltaGPIOPortJ
+			
 
 
 ; -------------------------------------------------------------------------------
@@ -105,22 +109,7 @@ inicializaMemoria
 
 
 MainLoop
-    BL PortJ_Input                 ;Chama a subrotina que lê o estado das chaves e coloca o resultado em R12
-	B esperaSW
-	
-VerificaSW
 
-    ; verifica SW1
-    CMP R12, #2_00000010
-    ITT EQ
-		MOVEQ R9, #0
-        BLEQ incrementaAlvo
-
-    ; verifica SW2
-    CMP R12, #2_00000001
-    ITT EQ
-		MOVEQ R9, #0
-        BLEQ decrementaAlvo
 
 VoltaLoop
 
@@ -137,14 +126,6 @@ VoltaLoop
 
 
 VerificaTemperatura
-	;MOV R0, #1000 ; define o tempo de espera
-	;BL EsperaXms
-
-	MOV R7, #0
-	MOV R0, #10
-	MUL R7, R10, R0
-	ADD R7, R7, R11
-	
 	LDR R0, =ADDRESS_CURRENT
     LDR R1, [R0]
 
@@ -158,57 +139,34 @@ VerificaTemperatura
 	
 	B MainLoop 
 
-esperaSW
-    
-    LDR R0, =ADDRESS_WRITE_500MS
-    LDR R1, [R0]
-    
-    CMP R9, #1
-    BEQ VerificaSW
-    
-    ; caso R9 ja foi pressionado...
-    ADD R1, R1, #5
-        
-    CMP R1, #600
-    ITT EQ
-        MOVEQ R1, #0
-        MOVEQ R9, #1 ; agora pode pressionar o SW
-    
-    
-    STR R1, [R0]
-    
-    B VoltaLoop
-	
-	
+
 incrementaAlvo                                ; ao pressionar o SW1
 	BL AcendeLed1
-    LDR R0, =ADDRESS_ALVO
-    LDR R1, [R0]
+    LDR R7, =ADDRESS_ALVO
+    LDR R1, [R7]
     ADD R1, R1, #1
-    STR R1, [R0]
+    STR R1, [R7]
 
     MOV R2, #LIMIT_MAX_TEMP_ALVO             ; a temperatura alvo não pode ser maior que 50
     CMP R1, R2
-    BLT VoltaLoop
+	BLT voltaGPIOPortJ
 
-    STR R2, [R0]                            ; força a temperatura alvo ficar em 50
-    B VoltaLoop
-
+    STR R2, [R7]                            ; força a temperatura alvo ficar em 50
+	B voltaGPIOPortJ
 
 decrementaAlvo                                 ; ao pressionar o SW1
 	BL AcendeLed2
-    LDR R0, =ADDRESS_ALVO     
-    LDR R1, [R0]
+    LDR R7, =ADDRESS_ALVO     
+    LDR R1, [R7]
     SUB R1, R1, #1
-    STR R1, [R0]
+    STR R1, [R7]
 
     MOV R2, #LIMIT_MIM_TEMP_ALVO             ; a temperatura alvo não pode ser maior que 5
     CMP R1, R2
-    BGT VoltaLoop
+	BGT voltaGPIOPortJ
 
-    STR R2, [R0]                            ; força a temperatura alvo ficar em 5
-    B VoltaLoop
-
+    STR R2, [R7]                            ; força a temperatura alvo ficar em 5
+    B voltaGPIOPortJ
 
 
 incrementaTempAtual                                ; ao pressionar o SW1
@@ -248,7 +206,6 @@ LigaDisplay
 	BL EsperaXms
 	
 	;MOV  R5, #0   		; PB5 = 1, PB4 = 0
-	;BL   PortP_Output
 	BL PortB_Output
 	
 	MOV R0, #1
@@ -286,9 +243,9 @@ RefreshDisplay
     LDR R1, [R0]
 	
 	MOV R0, #10
-	UDIV R2, R1, R0
+	UDIV R2, R1, R0 ; dezena
 	
-	MLS R3, R2, R0, R1
+	MLS R3, R2, R0, R1 ; unidade
 	MOV R5, R11
 	
 	LDR R0, =DISPLAY_DEZENA

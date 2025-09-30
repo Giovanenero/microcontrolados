@@ -15,6 +15,12 @@ BIT1	EQU 2_0010
 ; Definições dos Registradores Gerais
 SYSCTL_RCGCGPIO_R	 EQU	0x400FE608
 SYSCTL_PRGPIO_R		 EQU    0x400FEA08
+	
+; ========================
+; NVIC
+NVIC_EN1_R           EQU    0xE000E104
+NVIC_PRI12_R		 EQU	0xE000E430
+	
 ; ========================
 ; Definições dos Ports
 ; PORT A = DISPLAYS PA4 a PA7 e LEDS PA4 a PA7 da PAT
@@ -44,6 +50,13 @@ GPIO_PORTB_AHB_PCTL_R   EQU 0x4005952C
 GPIO_PORTB				EQU 2_000000000000010
 
 ; PORT J = SWITCH 1 e 2
+GPIO_PORTJ_IS_R      	EQU    0x40060404
+GPIO_PORTJ_IBE_R      	EQU    0x40060408
+GPIO_PORTJ_IEV_R      	EQU    0x4006040C
+GPIO_PORTJ_IM_R      	EQU    0x40060410
+GPIO_PORTJ_RIS_R      	EQU    0x40060414
+GPIO_PORTJ_ICR_R      	EQU    0x4006041C    
+GPIO_PORTJ_LOCK_R    	EQU    0x40060520
 GPIO_PORTJ_AHB_LOCK_R    	EQU    0x40060520
 GPIO_PORTJ_AHB_CR_R      	EQU    0x40060524
 GPIO_PORTJ_AHB_AMSEL_R   	EQU    0x40060528
@@ -55,7 +68,7 @@ GPIO_PORTJ_AHB_PUR_R     	EQU    0x40060510
 GPIO_PORTJ_AHB_DATA_R    	EQU    0x400603FC
 GPIO_PORTJ_AHB_DATA_BITS_R  EQU    0x40060000
 GPIO_PORTJ               	EQU    2_000000100000000
-	
+
 ; PORT N = LEDS 1 E 2
 GPIO_PORTN_LOCK_R    	EQU    0x40064520
 GPIO_PORTN_CR_R      	EQU    0x40064524
@@ -100,14 +113,19 @@ GPIO_PORTQ              EQU 2_100000000000000
 ;                  código
         AREA    |.text|, CODE, READONLY, ALIGN=2
 
-		; Se alguma função do arquivo for chamada em outro arquivo	
-        EXPORT GPIO_Init            ; Permite chamar GPIO_Init de outro arquivo
+		; Se alguma função do arquivo for chamada em outro arquivo
+		IMPORT EnableInterrupts
+        IMPORT DisableInterrupts		
+        
+		EXPORT GPIO_Init            ; Permite chamar GPIO_Init de outro arquivo
 		EXPORT PortAQ_Output		; Permite chamar PortAQ_Output de outro arquivo
 		EXPORT PortB_Output			; Permite chamar PortB_Output de outro arquivo
-		EXPORT PortJ_Input			; Permite chamar PortJ_Input de outro arquivo
+		EXPORT GPIOPortJ_Handler			; Permite chamar PortJ_Input de outro arquivo
 		EXPORT PortN_Output			; Permite chamar PortN_Output de outro arquivo
 		EXPORT PortP_Output			; Permite chamar PortP_Output de outro arquivo
-									
+		IMPORT  incrementaAlvo
+		IMPORT  decrementaAlvo	
+		EXPORT voltaGPIOPortJ
 ;--------------------------------------------------------------------------------
 ; Função GPIO_Init
 ; Parâmetro de entrada: Não tem
@@ -254,7 +272,44 @@ EsperaGPIO  LDR     R1, [R0]						;Lê da memória o conteúdo do endereço do regis
 			;MOV     R1, #2_1							;Habilitar funcionalidade digital de resistor de pull-up 
             MOV     R1, #2_00000011
 			STR     R1, [R0]							;Escreve no registrador da memória do resistor de pull-up
-			
+
+;Interrupções
+; 8. Desabilitar a interrupção no registrador IM
+			LDR     R0, =GPIO_PORTJ_IM_R			;Carrega o endereço do IM para a porta M
+			MOV     R1, #2_00							;Desabilitar as interrupções  
+            STR     R1, [R0]							;Escreve no registrador
+            
+; 9. Configurar o tipo de interrupção por borda no registrador IS
+			LDR     R0, =GPIO_PORTJ_IS_R			;Carrega o endereço do IS para a porta M
+			MOV     R1, #2_00							;Por Borda  
+            STR     R1, [R0]							;Escreve no registrador
+
+; 10. Configurar  borda única no registrador IBE
+			LDR     R0, =GPIO_PORTJ_IBE_R				;Carrega o endereço do IBE para a porta M
+			MOV     R1, #2_00							;Borda Única  
+            STR     R1, [R0]							;Escreve no registrador
+; 11. Configurar  borda de descida (botão pressionado) no registrador IEV
+			LDR     R0, =GPIO_PORTJ_IEV_R				;Carrega o endereço do IEV para a porta M
+			MOV     R1, #2_11							;Borda DESCIDA  
+            STR     R1, [R0]							;Escreve no registrador
+  
+; 12. Habilitar a interrupção no registrador IM
+			LDR     R0, =GPIO_PORTJ_IM_R				;Carrega o endereço do IM para a porta M
+			MOV     R1, #2_11							;Habilitar as interrupções  
+            STR     R1, [R0]							;Escreve no registrador  
+
+;Interrupção número 51          
+; 13. Setar a prioridade no NVIC
+			LDR     R0, =NVIC_PRI12_R           		;Carrega o do NVIC para o grupo que tem o M entre 72 e 75
+			MOV     R1, #5  		                    ;Prioridade 3
+			LSL     R1, R1, #29							;Desloca 5 bits para a esquerda já que o M é o primeiro byte do PRI18
+            STR     R1, [R0]							;Escreve no registrador da memória
+; 14. Habilitar a interrupção no NVIC
+			LDR     R0, =NVIC_EN1_R           			;Carrega o do NVIC para o grupo que tem o M entre 64 e 95
+			MOV     R1, #1
+			LSL     R1, #19								;Desloca 8 bits para a esquerda já que o M é a interrupção do bit 8 no EN2
+            STR     R1, [R0]							;Escreve no registrador da memória
+
 			BX      LR
 
 
@@ -298,12 +353,28 @@ PortB_Output
 ; Função PortJ_Input
 ; Parâmetro de entrada: Não tem
 ; Parâmetro de saída: R0 --> o valor da leitura
-PortJ_Input
-	LDR	R1, =GPIO_PORTJ_AHB_DATA_R		    ;Carrega o valor do offset do data register
-	LDR R12, [R1]                           ;Lê no barramento de dados dos pinos [J0]
+GPIOPortJ_Handler
+    PUSH{LR}
+    LDR R0, =GPIO_PORTJ_RIS_R        ;pega alguma interrupção
+    LDR R2, [R0]
+    CMP R2, #2_10                      ;compara para ver se é a chave 1 ou chave 2
+	BEQ decrementaAlvo 
 	
-	BX LR									;Retorno
+	CMP R2, #2_01                      ;compara para ver se é a chave 1 ou chave 2
+	BEQ incrementaAlvo 
+	
+voltaGPIOPortJ
+    
+	LDR R1, =GPIO_PORTJ_ICR_R        ;Chave 1, incrementa setpoint
+    MOV R2, #2_11
+    STR R2, [R1]                  ;Incrementa, R9 = R9 + 1
+    B Fim_Interrupt
 
+Fim_Interrupt
+    POP{LR}
+    BX LR
+ 
+  
 ; -------------------------------------------------------------------------------
 ; Função PortN_Output
 ; Parâmetro de entrada: R0 --> se o BIT1 está ligado ou desligado

@@ -16,6 +16,8 @@
 #define GPIO_PORTM  (0x800) //bit 11 - Teclado matricial (PM4 a PM7), Display LCD (PM0 a PM2)
 #define GPIO_PORTN  (0x1000) //bit 12
 
+void SysTick_Wait1ms(uint32_t delay);
+
 // -------------------------------------------------------------------------------
 // Função GPIO_Init
 // Inicializa os ports F, J e N
@@ -100,6 +102,106 @@ void PortH_Output(uint32_t v) {
 	
     GPIO_PORTH_AHB_DATA_R = (GPIO_PORTH_AHB_DATA_R & ~(0x0Fu)) | valor; 
 }
+
+
+
+void SetLCDInstrucao(uint32_t inst){
+	uint32_t mascara = GPIO_PORTK_DIR_R & 0xFF;
+	uint32_t valor = inst & mascara;
+
+	GPIO_PORTK_DATA_R = (GPIO_PORTK_DATA_R & ~(mascara)) | valor; 
+	GPIO_PORTM_DATA_R = ((GPIO_PORTM_DATA_R | 0x04) & ~(0x01));
+
+	SysTick_Wait1ms(1);
+	
+	GPIO_PORTM_DATA_R = GPIO_PORTM_DATA_R & ~(0x04);
+	SysTick_Wait1ms(2);
+}
+
+void SetLCDCaracter(uint8_t caracter){
+	GPIO_PORTK_DATA_R = caracter;
+	GPIO_PORTM_DATA_R = GPIO_PORTM_DATA_R | 0x05;
+
+	SysTick_Wait1ms(1);
+	
+	GPIO_PORTM_DATA_R = GPIO_PORTM_DATA_R & 0xFB;
+	SysTick_Wait1ms(2);
+}
+
+void InitLCD (void){
+	SetLCDInstrucao(0x38); // Configuracao do LCD, inicia no modo de 2 linhas
+	SetLCDInstrucao(0x06); // Habilita autoincremento para a direita no cursor
+	SetLCDInstrucao(0x0E); // Configuracao do cursor (habilita display, cursor e nao pisca)
+	SetLCDInstrucao(0x01); // Reset no display (limpa e coloca o cursor na home)
+}
+
+void ImprimeTexto(uint8_t* texto){
+	SetLCDInstrucao(0x01);
+	int i = 0;
+	int size = sizeof(texto) / texto[0]; // Calcula o tamanho do array
+	
+	while(texto[i] != '\0'){
+		SetLCDCaracter(texto[i]);
+		i++;
+		if(i == 16) // Se i==16 esta na ultima posicao da primeira linha, passa para a primeira posicao da segunda linha
+			SetLCDInstrucao(0xC0); // Move o cursor para a linha 2 coluna 1
+	}
+	return;
+}
+
+
+int32_t Teclas_Input(volatile uint32_t *data_in,
+                 volatile uint32_t *dir_reg,
+                 volatile uint32_t *data_out)
+{
+    uint32_t r;
+
+    // --- Varredura 1 ---
+    // *dir_reg = 0b0100_0111
+    *dir_reg = 0x47;
+    // zera bit 6 (0b0100_0000) na saída -> força 1ª coluna
+    *data_out &= ~0x40;
+
+    SysTick_Wait1ms(1);
+    r = *data_in;
+
+    if (r == 0xE) return 3;   // 1110
+    if (r == 0xD) return 6;   // 1101
+    if (r == 0xB) return 9;   // 1011
+    if (r == 0x7) return 11;  // 0111
+
+    // --- Varredura 2 ---
+    // *dir_reg = 0b0001_0111
+    *dir_reg = 0x17;
+    // zera bit 4 (0b0001_0000) -> 2ª coluna
+    *data_out &= ~0x10;
+
+    SysTick_Wait1ms(1);
+    r = *data_in;             // lê barramento (linhas)
+
+    if (r == 0xE) return 1;
+    if (r == 0xD) return 4;
+    if (r == 0xB) return 7;
+    if (r == 0x7) return 10;
+
+    // --- Varredura 3 ---
+    // *dir_reg = 0b0010_0111
+    *dir_reg = 0x27;
+    // zera bit 5 (0b0010_0000) -> 3ª coluna
+    *data_out &= ~0x20;
+
+    SysTick_Wait1ms(1);
+    r = *data_in;
+
+    if (r == 0xE) return 2;
+    if (r == 0xD) return 5;
+    if (r == 0xB) return 8;
+    if (r == 0x7) return 0;
+
+    // nenhuma tecla detectada
+    return -1;
+}
+
 
 // -------------------------------------------------------------------------------
 // Função PortJ_Input

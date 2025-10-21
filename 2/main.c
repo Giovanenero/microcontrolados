@@ -5,6 +5,7 @@
 // Prof. Guilherme Peron
 
 #include <stdint.h>
+#include "tm4c1294ncpdt.h"
 
 void PLL_Init(void);
 void SysTick_Init(void);
@@ -17,131 +18,150 @@ void PortN_Output(uint32_t leds);
 void AcendeSemaforo1(int32_t led);
 void AcendeSemaforo2(int32_t led);
 
-typedef enum estSinal
-{
-	VERDE,
-	AMARELO,
-	VERMELHO
-} estadosSinal;
+void SetLCDInstrucao(uint32_t inst);
+void SetLCDCaracter(uint8_t caracter);
+void InitLCD(void);
+void ImprimeTexto(uint8_t* texto);
+int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, volatile uint32_t *data_out);
+void GetTecla(void);
+	
 
-typedef struct sinal
+uint8_t ABERTO_MSG[] = "Cofre aberto, digite nova senha";
+uint8_t FECHADO_MSG[] = "Cofre fechado";
+uint8_t ABRINDO_MSG[] = "Cofre abrindo";
+uint8_t FECHANDO_MSG[] = "Cofre fechando.";
+uint8_t TRAVADO_MSG[] = "Cofre Travado";
+
+typedef enum estCofre
 {
-	estadosSinal estado;
-} sinalTipo;
+	ABRINDO,
+	ABERTO,
+	FECHANDO,
+	FECHADO,
+	TRAVADO
+} estadosCofre;
+
+typedef struct cofre
+{
+	estadosCofre estado;
+	uint8_t* mensagem;
+} cofreTipo;
 
 
 int32_t tempo = 2;
 int32_t i = 0;
-sinalTipo sinal[1];
+cofreTipo cofre;
+
+int32_t tecla = -1;
+char buf[12];
+static uint8_t senha[16 + 1]; // 16 senha (4 caracteres) + \0
+static uint8_t idx = 0;
+static uint8_t flag_ok = 0;
+
 
 int main(void)
 {
-	sinal[0].estado = VERMELHO;
-	sinal[1].estado = VERMELHO;
-	
 	PLL_Init();
 	SysTick_Init();
 	GPIO_Init();
-	
-	// LED 1 = 0x2
-	// LED 2 = 0x1
-	// LED 3 = 0x10
-	// LED 4 = 0x3
-	
-	// LED 1 e 2 = 0x3
-	// LED 3 e 4 = 0x11
-	
-	// LED 1 = VERDE
-	// LED 2 = VERMELHO
-	// LED 1 e 2 = AMARELO
-	
-	// LED 3 = VERDE
-	// LED 4 = VERMELHO
-	// LED 3 e 4 = AMARELO
+	InitLCD();
+	uint8_t Flag = 0;
+		
+	cofre.estado = ABERTO;	
 	
 	while (1)
 	{
-		switch(i)
+//		switch(i)
+//		{
+//			case 0:
+//				cofre.estado = ABERTO;
+//				cofre.mensagem = ABERTO_MSG;
+//				
+//				break;
+//			case 1: 
+//				tempo = 2000;
+//				
+//				break;
+//			case 2:
+//				tempo = 4000;
+//			
+//				break;
+//			case 3:
+//				tempo = 2000;
+//			
+//				break;
+//			case 4:
+//				tempo = 20000;
+//			
+//				break;
+//			case 5:
+//				tempo = 4000;
+//			
+//				break;
+//			default:
+//				tempo = 2000;
+//				i = 0;
+//				
+//		}
+/*
+		tecla = Teclas_Input(&GPIO_PORTL_DATA_R, &GPIO_PORTM_DIR_R, &GPIO_PORTM_DATA_R);
+		if(tecla != -1)
 		{
-			case 0:
-				tempo = 200;
-				sinal[0].estado = VERMELHO;
-				sinal[1].estado = VERMELHO;
-				break;
-			case 1: 
-				tempo = 2000;
-				sinal[0].estado = VERMELHO;
-				sinal[1].estado = VERDE;
-				break;
-			case 2:
-				tempo = 4000;
-			sinal[0].estado = VERMELHO;
-			sinal[1].estado = AMARELO;
-				break;
-			case 3:
-				tempo = 2000;
-			sinal[0].estado = VERMELHO;
-			sinal[1].estado = VERMELHO;
-				break;
-			case 4:
-				tempo = 20000;
-			sinal[0].estado = VERDE;
-			sinal[1].estado = VERMELHO;
-				break;
-			case 5:
-				tempo = 4000;
-			sinal[0].estado = AMARELO;
-			sinal[1].estado = VERMELHO;
-				break;
-			default:
-				tempo = 2000;
-				i = 0;
-				sinal[0].estado = VERMELHO;
-				sinal[1].estado = VERMELHO;			
-		}			
-	
+			ImprimeTexto((uint8_t*)buf);
+		}*/
+		GetTecla();
+		if (flag_ok ==1) {
+            flag_ok = 0;
+        }
+				
 
-		estadosSinal sinal1 = sinal[0].estado;
-		switch(sinal1)
+		switch(cofre.estado)
 		{
-			case VERDE:
-				AcendeSemaforo1(0x2);
+			case ABERTO:
+				if(Flag == 0)
+				{
+					
+					//ImprimeTexto(ABERTO_MSG);
+					Flag = 1;
+				}
 				break;
-			
-			case AMARELO:
-				AcendeSemaforo1(0x3);
-			break;
-			
-			case VERMELHO:
-				AcendeSemaforo1(0x1);
-			break;
-			
-			default:
-				AcendeSemaforo1(0x00);
 		}  
 
-		estadosSinal sinal2 = sinal[1].estado;
-		switch(sinal2)
-		{
-			case VERDE:
-				AcendeSemaforo2(0x11);
-				break;
-			
-			case AMARELO:
-				AcendeSemaforo2(0x10);
-			break;
-			
-			case VERMELHO:
-				AcendeSemaforo2(0x3);
-			break;
-			
-			default:
-				AcendeSemaforo2(0x00);
-		} 
-		SysTick_Wait1ms(tempo);
-		i++;
+		
 	}
 }
+
+
+static void GetTecla(void) {
+    int32_t t = Teclas_Input(&GPIO_PORTL_DATA_R, &GPIO_PORTM_DIR_R, &GPIO_PORTM_DATA_R);
+    if (t < 0) {
+        return; // Nenhuma pressionada
+    }
+
+    // Debounce no botao
+    while (Teclas_Input(&GPIO_PORTL_DATA_R, &GPIO_PORTM_DIR_R, &GPIO_PORTM_DATA_R) >= 0) {
+        SysTick_Wait1ms(10);
+    }
+
+    if (t >= 0 && t <= 9) {
+        if (idx < 4) {
+            senha[idx++] = (char)('0' + t);
+            senha[idx] = '\0';
+        } 
+				else {
+					idx = 0;
+          senha[0] = '\0';
+					SetLCDInstrucao(0x01);
+        }
+    } 
+		else if (t == 11) {
+        flag_ok = 1;
+    }
+
+    ImprimeTexto(senha);
+}
+
+
 
 void AcendeSemaforo1(int32_t led)
 {

@@ -104,7 +104,6 @@ void PortH_Output(uint32_t v) {
 }
 
 
-
 void SetLCDInstrucao(uint32_t inst){
 	uint32_t mascara = GPIO_PORTK_DIR_R & 0xFF;
 	uint32_t valor = inst & mascara;
@@ -150,9 +149,36 @@ void ImprimeTexto(uint8_t* texto){
 }
 
 
-int32_t Teclas_Input(volatile uint32_t *data_in,
-                 volatile uint32_t *dir_reg,
-                 volatile uint32_t *data_out)
+
+
+
+// -------------------------------------------------------------------------------
+// Função PortJ_Input
+// Lê os valores de entrada do port J
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: o valor da leitura do port
+uint32_t PortJ_Input(void)
+{
+	return GPIO_PORTJ_AHB_DATA_R;
+}
+
+// -------------------------------------------------------------------------------
+// Função PortN_Output
+// Escreve os valores no port N
+// Parâmetro de entrada: Valor a ser escrito
+// Parâmetro de saída: não tem
+void PortN_Output(uint32_t valor)
+{
+    uint32_t temp;
+    //vamos zerar somente os bits menos significativos
+    //para uma escrita amigável nos bits 0 e 1
+    temp = GPIO_PORTN_DATA_R & 0xFC;
+    //agora vamos fazer o OR com o valor recebido na função
+    temp = temp | valor;
+    GPIO_PORTN_DATA_R = temp; 
+}
+
+int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, volatile uint32_t *data_out)
 {
     uint32_t r;
 
@@ -201,34 +227,4 @@ int32_t Teclas_Input(volatile uint32_t *data_in,
     // nenhuma tecla detectada
     return -1;
 }
-
-
-// -------------------------------------------------------------------------------
-// Função PortJ_Input
-// Lê os valores de entrada do port J
-// Parâmetro de entrada: Não tem
-// Parâmetro de saída: o valor da leitura do port
-uint32_t PortJ_Input(void)
-{
-	return GPIO_PORTJ_AHB_DATA_R;
-}
-
-// -------------------------------------------------------------------------------
-// Função PortN_Output
-// Escreve os valores no port N
-// Parâmetro de entrada: Valor a ser escrito
-// Parâmetro de saída: não tem
-void PortN_Output(uint32_t valor)
-{
-    uint32_t temp;
-    //vamos zerar somente os bits menos significativos
-    //para uma escrita amigável nos bits 0 e 1
-    temp = GPIO_PORTN_DATA_R & 0xFC;
-    //agora vamos fazer o OR com o valor recebido na função
-    temp = temp | valor;
-    GPIO_PORTN_DATA_R = temp; 
-}
-
-
-
 

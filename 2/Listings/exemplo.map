@@ -23,8 +23,17 @@ Section Cross References
     main.o(i.main) refers to utils.o(.text) for PLL_Init
     main.o(i.main) refers to gpio.o(i.GPIO_Init) for GPIO_Init
     main.o(i.main) refers to gpio.o(i.InitLCD) for InitLCD
+    main.o(i.main) refers to gpio.o(i.ImprimeTexto) for ImprimeTexto
     main.o(i.main) refers to main.o(i.GetTecla) for GetTecla
     main.o(i.main) refers to main.o(.data) for cofre
+    main.o(i.motor_antihorario_completo) refers to utils.o(.text) for SysTick_Wait1ms
+    main.o(i.motor_antihorario_meio) refers to utils.o(.text) for SysTick_Wait1ms
+    main.o(i.motor_horario_completo) refers to utils.o(.text) for SysTick_Wait1ms
+    main.o(i.motor_horario_meio) refers to utils.o(.text) for SysTick_Wait1ms
+    main.o(i.passoMotor) refers to gpio.o(i.PortH_Output) for PortH_Output
+    main.o(i.passoMotor) refers to main.o(.data) for passo
+    main.o(i.rotacionaMotor) refers to utils.o(.text) for SysTick_Wait1ms
+    main.o(i.rotacionaMotor) refers to main.o(i.passoMotor) for passoMotor
     gpio.o(i.ImprimeTexto) refers to gpio.o(i.SetLCDInstrucao) for SetLCDInstrucao
     gpio.o(i.ImprimeTexto) refers to gpio.o(i.SetLCDCaracter) for SetLCDCaracter
     gpio.o(i.InitLCD) refers to gpio.o(i.SetLCDInstrucao) for SetLCDInstrucao
@@ -139,12 +148,18 @@ Removing Unused input sections from the image.
 
     Removing main.o(i.AcendeSemaforo1), (12 bytes).
     Removing main.o(i.AcendeSemaforo2), (12 bytes).
+    Removing main.o(i.motor_antihorario_completo), (64 bytes).
+    Removing main.o(i.motor_antihorario_meio), (120 bytes).
+    Removing main.o(i.motor_horario_completo), (64 bytes).
+    Removing main.o(i.motor_horario_meio), (120 bytes).
+    Removing main.o(i.passoMotor), (160 bytes).
+    Removing main.o(i.rotacionaMotor), (14 bytes).
     Removing gpio.o(i.PortF_Output), (28 bytes).
     Removing gpio.o(i.PortH_Output), (32 bytes).
     Removing gpio.o(i.PortJ_Input), (12 bytes).
     Removing gpio.o(i.PortN_Output), (28 bytes).
 
-6 unused section(s) (total 124 bytes) removed from the image.
+12 unused section(s) (total 666 bytes) removed from the image.
 
 ==============================================================================
 
@@ -268,25 +283,25 @@ Image Symbol Table
     .text                                    0x0000055e   Section        0  indicate_semi.o(.text)
     i.GPIO_Init                              0x00000560   Section        0  gpio.o(i.GPIO_Init)
     i.GetTecla                               0x000006a0   Section        0  main.o(i.GetTecla)
-    GetTecla                                 0x000006a1   Thumb Code   130  main.o(i.GetTecla)
-    i.ImprimeTexto                           0x00000738   Section        0  gpio.o(i.ImprimeTexto)
-    i.InitLCD                                0x00000768   Section        0  gpio.o(i.InitLCD)
-    i.SetLCDCaracter                         0x00000784   Section        0  gpio.o(i.SetLCDCaracter)
-    i.SetLCDInstrucao                        0x000007c4   Section        0  gpio.o(i.SetLCDInstrucao)
-    i.Teclas_Input                           0x00000824   Section        0  gpio.o(i.Teclas_Input)
-    i.main                                   0x000008d4   Section        0  main.o(i.main)
-    x$fpl$fpinit                             0x0000091c   Section       10  fpinit.o(x$fpl$fpinit)
-    $v0                                      0x0000091c   Number         0  fpinit.o(x$fpl$fpinit)
-    .data                                    0x20000000   Section      114  main.o(.data)
+    GetTecla                                 0x000006a1   Thumb Code   156  main.o(i.GetTecla)
+    i.ImprimeTexto                           0x00000758   Section        0  gpio.o(i.ImprimeTexto)
+    i.InitLCD                                0x00000788   Section        0  gpio.o(i.InitLCD)
+    i.SetLCDCaracter                         0x000007a4   Section        0  gpio.o(i.SetLCDCaracter)
+    i.SetLCDInstrucao                        0x000007e4   Section        0  gpio.o(i.SetLCDInstrucao)
+    i.Teclas_Input                           0x00000844   Section        0  gpio.o(i.Teclas_Input)
+    i.main                                   0x000008f4   Section        0  main.o(i.main)
+    x$fpl$fpinit                             0x0000096c   Section       10  fpinit.o(x$fpl$fpinit)
+    $v0                                      0x0000096c   Number         0  fpinit.o(x$fpl$fpinit)
+    .data                                    0x20000000   Section      185  main.o(.data)
     idx                                      0x20000070   Data           1  main.o(.data)
     flag_ok                                  0x20000071   Data           1  main.o(.data)
-    .bss                                     0x20000074   Section       29  main.o(.bss)
-    senha                                    0x20000080   Data          17  main.o(.bss)
-    .bss                                     0x20000094   Section       96  libspace.o(.bss)
-    HEAP                                     0x200000f8   Section        0  startup.o(HEAP)
-    STACK                                    0x200000f8   Section     1024  startup.o(STACK)
-    HeapMem                                  0x200000f8   Data           0  startup.o(HEAP)
-    StackMem                                 0x200000f8   Data           0  startup.o(STACK)
+    .bss                                     0x200000bc   Section       29  main.o(.bss)
+    senha                                    0x200000c8   Data          17  main.o(.bss)
+    .bss                                     0x200000dc   Section       96  libspace.o(.bss)
+    HEAP                                     0x20000140   Section        0  startup.o(HEAP)
+    STACK                                    0x20000140   Section     1024  startup.o(STACK)
+    HeapMem                                  0x20000140   Data           0  startup.o(HEAP)
+    StackMem                                 0x20000140   Data           0  startup.o(STACK)
 
     Global Symbols
 
@@ -502,17 +517,17 @@ Image Symbol Table
     __use_no_semihosting_swi                 0x0000055d   Thumb Code     2  use_no_semi.o(.text)
     __semihosting_library_function           0x0000055f   Thumb Code     0  indicate_semi.o(.text)
     GPIO_Init                                0x00000561   Thumb Code   254  gpio.o(i.GPIO_Init)
-    ImprimeTexto                             0x00000739   Thumb Code    48  gpio.o(i.ImprimeTexto)
-    InitLCD                                  0x00000769   Thumb Code    28  gpio.o(i.InitLCD)
-    SetLCDCaracter                           0x00000785   Thumb Code    50  gpio.o(i.SetLCDCaracter)
-    SetLCDInstrucao                          0x000007c5   Thumb Code    78  gpio.o(i.SetLCDInstrucao)
-    Teclas_Input                             0x00000825   Thumb Code   174  gpio.o(i.Teclas_Input)
-    main                                     0x000008d5   Thumb Code    62  main.o(i.main)
-    _fp_init                                 0x0000091d   Thumb Code    10  fpinit.o(x$fpl$fpinit)
-    __fplib_config_fpu_vfp                   0x00000925   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __fplib_config_pureend_doubles           0x00000925   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    Region$$Table$$Base                      0x00000928   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x00000948   Number         0  anon$$obj.o(Region$$Table)
+    ImprimeTexto                             0x00000759   Thumb Code    48  gpio.o(i.ImprimeTexto)
+    InitLCD                                  0x00000789   Thumb Code    28  gpio.o(i.InitLCD)
+    SetLCDCaracter                           0x000007a5   Thumb Code    50  gpio.o(i.SetLCDCaracter)
+    SetLCDInstrucao                          0x000007e5   Thumb Code    78  gpio.o(i.SetLCDInstrucao)
+    Teclas_Input                             0x00000845   Thumb Code   174  gpio.o(i.Teclas_Input)
+    main                                     0x000008f5   Thumb Code   100  main.o(i.main)
+    _fp_init                                 0x0000096d   Thumb Code    10  fpinit.o(x$fpl$fpinit)
+    __fplib_config_fpu_vfp                   0x00000975   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __fplib_config_pureend_doubles           0x00000975   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    Region$$Table$$Base                      0x00000978   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x00000998   Number         0  anon$$obj.o(Region$$Table)
     ABERTO_MSG                               0x20000000   Data          32  main.o(.data)
     FECHADO_MSG                              0x20000020   Data          14  main.o(.data)
     ABRINDO_MSG                              0x2000002e   Data          14  main.o(.data)
@@ -522,9 +537,17 @@ Image Symbol Table
     i                                        0x20000060   Data           4  main.o(.data)
     cofre                                    0x20000064   Data           8  main.o(.data)
     tecla                                    0x2000006c   Data           4  main.o(.data)
-    buf                                      0x20000074   Data          12  main.o(.bss)
-    __libspace_start                         0x20000094   Data          96  libspace.o(.bss)
-    __temporary_stack_top$libspace           0x200000f4   Data           0  libspace.o(.bss)
+    sentido                                  0x20000074   Data           4  main.o(.data)
+    passo                                    0x20000078   Data           4  main.o(.data)
+    passoAtual                               0x2000007c   Data           4  main.o(.data)
+    PassoCompleto                            0x20000080   Data          16  main.o(.data)
+    MeioPasso                                0x20000090   Data          32  main.o(.data)
+    limite                                   0x200000b0   Data           4  main.o(.data)
+    contPassos                               0x200000b4   Data           4  main.o(.data)
+    Flag                                     0x200000b8   Data           1  main.o(.data)
+    buf                                      0x200000bc   Data          12  main.o(.bss)
+    __libspace_start                         0x200000dc   Data          96  libspace.o(.bss)
+    __temporary_stack_top$libspace           0x2000013c   Data           0  libspace.o(.bss)
 
 
 
@@ -534,103 +557,103 @@ Memory Map of the image
 
   Image Entry point : 0x00000209
 
-  Load Region LR_1 (Base: 0x00000000, Size: 0x000009bc, Max: 0xffffffff, ABSOLUTE)
+  Load Region LR_1 (Base: 0x00000000, Size: 0x00000a54, Max: 0xffffffff, ABSOLUTE)
 
-    Execution Region ER_RO (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00000948, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RO (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00000998, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x00000000   0x00000000   0x00000230   Code   RO            3  * RESET               startup.o
-    0x00000230   0x00000230   0x00000008   Code   RO          125  * !!!main             c_w.l(__main.o)
-    0x00000238   0x00000238   0x00000034   Code   RO          284    !!!scatter          c_w.l(__scatter.o)
-    0x0000026c   0x0000026c   0x0000001a   Code   RO          286    !!handler_copy      c_w.l(__scatter_copy.o)
+    0x00000230   0x00000230   0x00000008   Code   RO          161  * !!!main             c_w.l(__main.o)
+    0x00000238   0x00000238   0x00000034   Code   RO          320    !!!scatter          c_w.l(__scatter.o)
+    0x0000026c   0x0000026c   0x0000001a   Code   RO          322    !!handler_copy      c_w.l(__scatter_copy.o)
     0x00000286   0x00000286   0x00000002   PAD
-    0x00000288   0x00000288   0x0000001c   Code   RO          288    !!handler_zi        c_w.l(__scatter_zi.o)
-    0x000002a4   0x000002a4   0x00000002   Code   RO          152    .ARM.Collect$$libinit$$00000000  c_w.l(libinit.o)
-    0x000002a6   0x000002a6   0x00000004   Code   RO          158    .ARM.Collect$$libinit$$00000001  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          161    .ARM.Collect$$libinit$$00000004  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          164    .ARM.Collect$$libinit$$0000000A  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          166    .ARM.Collect$$libinit$$0000000C  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          168    .ARM.Collect$$libinit$$0000000E  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          171    .ARM.Collect$$libinit$$00000011  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          173    .ARM.Collect$$libinit$$00000013  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          175    .ARM.Collect$$libinit$$00000015  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          177    .ARM.Collect$$libinit$$00000017  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          179    .ARM.Collect$$libinit$$00000019  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          181    .ARM.Collect$$libinit$$0000001B  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          183    .ARM.Collect$$libinit$$0000001D  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          185    .ARM.Collect$$libinit$$0000001F  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          187    .ARM.Collect$$libinit$$00000021  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          189    .ARM.Collect$$libinit$$00000023  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          191    .ARM.Collect$$libinit$$00000025  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          195    .ARM.Collect$$libinit$$0000002C  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          197    .ARM.Collect$$libinit$$0000002E  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          199    .ARM.Collect$$libinit$$00000030  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000000   Code   RO          201    .ARM.Collect$$libinit$$00000032  c_w.l(libinit2.o)
-    0x000002aa   0x000002aa   0x00000002   Code   RO          202    .ARM.Collect$$libinit$$00000033  c_w.l(libinit2.o)
-    0x000002ac   0x000002ac   0x00000002   Code   RO          222    .ARM.Collect$$libshutdown$$00000000  c_w.l(libshutdown.o)
-    0x000002ae   0x000002ae   0x00000000   Code   RO          235    .ARM.Collect$$libshutdown$$00000002  c_w.l(libshutdown2.o)
-    0x000002ae   0x000002ae   0x00000000   Code   RO          237    .ARM.Collect$$libshutdown$$00000004  c_w.l(libshutdown2.o)
-    0x000002ae   0x000002ae   0x00000000   Code   RO          239    .ARM.Collect$$libshutdown$$00000006  c_w.l(libshutdown2.o)
-    0x000002ae   0x000002ae   0x00000000   Code   RO          242    .ARM.Collect$$libshutdown$$00000009  c_w.l(libshutdown2.o)
-    0x000002ae   0x000002ae   0x00000000   Code   RO          245    .ARM.Collect$$libshutdown$$0000000C  c_w.l(libshutdown2.o)
-    0x000002ae   0x000002ae   0x00000000   Code   RO          247    .ARM.Collect$$libshutdown$$0000000E  c_w.l(libshutdown2.o)
-    0x000002ae   0x000002ae   0x00000000   Code   RO          250    .ARM.Collect$$libshutdown$$00000011  c_w.l(libshutdown2.o)
-    0x000002ae   0x000002ae   0x00000002   Code   RO          251    .ARM.Collect$$libshutdown$$00000012  c_w.l(libshutdown2.o)
-    0x000002b0   0x000002b0   0x00000000   Code   RO          127    .ARM.Collect$$rtentry$$00000000  c_w.l(__rtentry.o)
-    0x000002b0   0x000002b0   0x00000000   Code   RO          129    .ARM.Collect$$rtentry$$00000002  c_w.l(__rtentry2.o)
-    0x000002b0   0x000002b0   0x00000006   Code   RO          141    .ARM.Collect$$rtentry$$00000004  c_w.l(__rtentry4.o)
-    0x000002b6   0x000002b6   0x00000000   Code   RO          131    .ARM.Collect$$rtentry$$00000009  c_w.l(__rtentry2.o)
-    0x000002b6   0x000002b6   0x00000004   Code   RO          132    .ARM.Collect$$rtentry$$0000000A  c_w.l(__rtentry2.o)
-    0x000002ba   0x000002ba   0x00000000   Code   RO          134    .ARM.Collect$$rtentry$$0000000C  c_w.l(__rtentry2.o)
-    0x000002ba   0x000002ba   0x00000008   Code   RO          135    .ARM.Collect$$rtentry$$0000000D  c_w.l(__rtentry2.o)
-    0x000002c2   0x000002c2   0x00000002   Code   RO          156    .ARM.Collect$$rtexit$$00000000  c_w.l(rtexit.o)
-    0x000002c4   0x000002c4   0x00000000   Code   RO          204    .ARM.Collect$$rtexit$$00000002  c_w.l(rtexit2.o)
-    0x000002c4   0x000002c4   0x00000004   Code   RO          205    .ARM.Collect$$rtexit$$00000003  c_w.l(rtexit2.o)
-    0x000002c8   0x000002c8   0x00000006   Code   RO          206    .ARM.Collect$$rtexit$$00000004  c_w.l(rtexit2.o)
+    0x00000288   0x00000288   0x0000001c   Code   RO          324    !!handler_zi        c_w.l(__scatter_zi.o)
+    0x000002a4   0x000002a4   0x00000002   Code   RO          188    .ARM.Collect$$libinit$$00000000  c_w.l(libinit.o)
+    0x000002a6   0x000002a6   0x00000004   Code   RO          194    .ARM.Collect$$libinit$$00000001  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          197    .ARM.Collect$$libinit$$00000004  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          200    .ARM.Collect$$libinit$$0000000A  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          202    .ARM.Collect$$libinit$$0000000C  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          204    .ARM.Collect$$libinit$$0000000E  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          207    .ARM.Collect$$libinit$$00000011  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          209    .ARM.Collect$$libinit$$00000013  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          211    .ARM.Collect$$libinit$$00000015  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          213    .ARM.Collect$$libinit$$00000017  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          215    .ARM.Collect$$libinit$$00000019  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          217    .ARM.Collect$$libinit$$0000001B  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          219    .ARM.Collect$$libinit$$0000001D  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          221    .ARM.Collect$$libinit$$0000001F  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          223    .ARM.Collect$$libinit$$00000021  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          225    .ARM.Collect$$libinit$$00000023  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          227    .ARM.Collect$$libinit$$00000025  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          231    .ARM.Collect$$libinit$$0000002C  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          233    .ARM.Collect$$libinit$$0000002E  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          235    .ARM.Collect$$libinit$$00000030  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000000   Code   RO          237    .ARM.Collect$$libinit$$00000032  c_w.l(libinit2.o)
+    0x000002aa   0x000002aa   0x00000002   Code   RO          238    .ARM.Collect$$libinit$$00000033  c_w.l(libinit2.o)
+    0x000002ac   0x000002ac   0x00000002   Code   RO          258    .ARM.Collect$$libshutdown$$00000000  c_w.l(libshutdown.o)
+    0x000002ae   0x000002ae   0x00000000   Code   RO          271    .ARM.Collect$$libshutdown$$00000002  c_w.l(libshutdown2.o)
+    0x000002ae   0x000002ae   0x00000000   Code   RO          273    .ARM.Collect$$libshutdown$$00000004  c_w.l(libshutdown2.o)
+    0x000002ae   0x000002ae   0x00000000   Code   RO          275    .ARM.Collect$$libshutdown$$00000006  c_w.l(libshutdown2.o)
+    0x000002ae   0x000002ae   0x00000000   Code   RO          278    .ARM.Collect$$libshutdown$$00000009  c_w.l(libshutdown2.o)
+    0x000002ae   0x000002ae   0x00000000   Code   RO          281    .ARM.Collect$$libshutdown$$0000000C  c_w.l(libshutdown2.o)
+    0x000002ae   0x000002ae   0x00000000   Code   RO          283    .ARM.Collect$$libshutdown$$0000000E  c_w.l(libshutdown2.o)
+    0x000002ae   0x000002ae   0x00000000   Code   RO          286    .ARM.Collect$$libshutdown$$00000011  c_w.l(libshutdown2.o)
+    0x000002ae   0x000002ae   0x00000002   Code   RO          287    .ARM.Collect$$libshutdown$$00000012  c_w.l(libshutdown2.o)
+    0x000002b0   0x000002b0   0x00000000   Code   RO          163    .ARM.Collect$$rtentry$$00000000  c_w.l(__rtentry.o)
+    0x000002b0   0x000002b0   0x00000000   Code   RO          165    .ARM.Collect$$rtentry$$00000002  c_w.l(__rtentry2.o)
+    0x000002b0   0x000002b0   0x00000006   Code   RO          177    .ARM.Collect$$rtentry$$00000004  c_w.l(__rtentry4.o)
+    0x000002b6   0x000002b6   0x00000000   Code   RO          167    .ARM.Collect$$rtentry$$00000009  c_w.l(__rtentry2.o)
+    0x000002b6   0x000002b6   0x00000004   Code   RO          168    .ARM.Collect$$rtentry$$0000000A  c_w.l(__rtentry2.o)
+    0x000002ba   0x000002ba   0x00000000   Code   RO          170    .ARM.Collect$$rtentry$$0000000C  c_w.l(__rtentry2.o)
+    0x000002ba   0x000002ba   0x00000008   Code   RO          171    .ARM.Collect$$rtentry$$0000000D  c_w.l(__rtentry2.o)
+    0x000002c2   0x000002c2   0x00000002   Code   RO          192    .ARM.Collect$$rtexit$$00000000  c_w.l(rtexit.o)
+    0x000002c4   0x000002c4   0x00000000   Code   RO          240    .ARM.Collect$$rtexit$$00000002  c_w.l(rtexit2.o)
+    0x000002c4   0x000002c4   0x00000004   Code   RO          241    .ARM.Collect$$rtexit$$00000003  c_w.l(rtexit2.o)
+    0x000002c8   0x000002c8   0x00000006   Code   RO          242    .ARM.Collect$$rtexit$$00000004  c_w.l(rtexit2.o)
     0x000002ce   0x000002ce   0x00000002   PAD
     0x000002d0   0x000002d0   0x00000030   Code   RO            4    .text               startup.o
     0x00000300   0x00000300   0x000001e4   Code   RO           12    .text               utils.o
-    0x000004e4   0x000004e4   0x00000006   Code   RO          123    .text               c_w.l(heapauxi.o)
-    0x000004ea   0x000004ea   0x0000004a   Code   RO          143    .text               c_w.l(sys_stackheap_outer.o)
-    0x00000534   0x00000534   0x00000012   Code   RO          145    .text               c_w.l(exit.o)
+    0x000004e4   0x000004e4   0x00000006   Code   RO          159    .text               c_w.l(heapauxi.o)
+    0x000004ea   0x000004ea   0x0000004a   Code   RO          179    .text               c_w.l(sys_stackheap_outer.o)
+    0x00000534   0x00000534   0x00000012   Code   RO          181    .text               c_w.l(exit.o)
     0x00000546   0x00000546   0x00000002   PAD
-    0x00000548   0x00000548   0x00000008   Code   RO          153    .text               c_w.l(libspace.o)
-    0x00000550   0x00000550   0x0000000c   Code   RO          214    .text               c_w.l(sys_exit.o)
-    0x0000055c   0x0000055c   0x00000002   Code   RO          225    .text               c_w.l(use_no_semi.o)
-    0x0000055e   0x0000055e   0x00000000   Code   RO          227    .text               c_w.l(indicate_semi.o)
+    0x00000548   0x00000548   0x00000008   Code   RO          189    .text               c_w.l(libspace.o)
+    0x00000550   0x00000550   0x0000000c   Code   RO          250    .text               c_w.l(sys_exit.o)
+    0x0000055c   0x0000055c   0x00000002   Code   RO          261    .text               c_w.l(use_no_semi.o)
+    0x0000055e   0x0000055e   0x00000000   Code   RO          263    .text               c_w.l(indicate_semi.o)
     0x0000055e   0x0000055e   0x00000002   PAD
-    0x00000560   0x00000560   0x00000140   Code   RO           55    i.GPIO_Init         gpio.o
-    0x000006a0   0x000006a0   0x00000098   Code   RO           17    i.GetTecla          main.o
-    0x00000738   0x00000738   0x00000030   Code   RO           56    i.ImprimeTexto      gpio.o
-    0x00000768   0x00000768   0x0000001c   Code   RO           57    i.InitLCD           gpio.o
-    0x00000784   0x00000784   0x00000040   Code   RO           62    i.SetLCDCaracter    gpio.o
-    0x000007c4   0x000007c4   0x00000060   Code   RO           63    i.SetLCDInstrucao   gpio.o
-    0x00000824   0x00000824   0x000000ae   Code   RO           64    i.Teclas_Input      gpio.o
-    0x000008d2   0x000008d2   0x00000002   PAD
-    0x000008d4   0x000008d4   0x00000048   Code   RO           18    i.main              main.o
-    0x0000091c   0x0000091c   0x0000000a   Code   RO          212    x$fpl$fpinit        fz_wm.l(fpinit.o)
-    0x00000926   0x00000926   0x00000002   PAD
-    0x00000928   0x00000928   0x00000020   Data   RO          282    Region$$Table       anon$$obj.o
+    0x00000560   0x00000560   0x00000140   Code   RO           91    i.GPIO_Init         gpio.o
+    0x000006a0   0x000006a0   0x000000b8   Code   RO           17    i.GetTecla          main.o
+    0x00000758   0x00000758   0x00000030   Code   RO           92    i.ImprimeTexto      gpio.o
+    0x00000788   0x00000788   0x0000001c   Code   RO           93    i.InitLCD           gpio.o
+    0x000007a4   0x000007a4   0x00000040   Code   RO           98    i.SetLCDCaracter    gpio.o
+    0x000007e4   0x000007e4   0x00000060   Code   RO           99    i.SetLCDInstrucao   gpio.o
+    0x00000844   0x00000844   0x000000ae   Code   RO          100    i.Teclas_Input      gpio.o
+    0x000008f2   0x000008f2   0x00000002   PAD
+    0x000008f4   0x000008f4   0x00000078   Code   RO           18    i.main              main.o
+    0x0000096c   0x0000096c   0x0000000a   Code   RO          248    x$fpl$fpinit        fz_wm.l(fpinit.o)
+    0x00000976   0x00000976   0x00000002   PAD
+    0x00000978   0x00000978   0x00000020   Data   RO          318    Region$$Table       anon$$obj.o
 
 
-    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x00000948, Size: 0x00000074, Max: 0xffffffff, ABSOLUTE)
-
-    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
-
-    0x20000000   0x00000948   0x00000072   Data   RW           20    .data               main.o
-
-
-    Execution Region ER_ZI (Exec base: 0x20000074, Load base: 0x000009bc, Size: 0x00000484, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x00000998, Size: 0x000000bc, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000074        -       0x0000001d   Zero   RW           19    .bss                main.o
-    0x20000091   0x000009bc   0x00000003   PAD
-    0x20000094        -       0x00000060   Zero   RW          154    .bss                c_w.l(libspace.o)
-    0x200000f4   0x000009bc   0x00000004   PAD
-    0x200000f8        -       0x00000000   Zero   RW            2    HEAP                startup.o
-    0x200000f8        -       0x00000400   Zero   RW            1    STACK               startup.o
+    0x20000000   0x00000998   0x000000b9   Data   RW           26    .data               main.o
+
+
+    Execution Region ER_ZI (Exec base: 0x200000bc, Load base: 0x00000a54, Size: 0x00000484, Max: 0xffffffff, ABSOLUTE)
+
+    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x200000bc        -       0x0000001d   Zero   RW           25    .bss                main.o
+    0x200000d9   0x00000a54   0x00000003   PAD
+    0x200000dc        -       0x00000060   Zero   RW          190    .bss                c_w.l(libspace.o)
+    0x2000013c   0x00000a54   0x00000004   PAD
+    0x20000140        -       0x00000000   Zero   RW            2    HEAP                startup.o
+    0x20000140        -       0x00000400   Zero   RW            1    STACK               startup.o
 
 
 ==============================================================================
@@ -641,14 +664,14 @@ Image component sizes
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
        730         98          0          0          0       4271   gpio.o
-       224         32          0        114         29       6773   main.o
+       304         48          0        185         29       7113   main.o
        608        532          0          0       1024       1000   startup.o
        484         92          0          0          0        360   utils.o
 
     ----------------------------------------------------------------------
-      2048        754         32        116       1056      12404   Object Totals
+      2128        770         32        188       1056      12744   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-         2          0          0          2          3          0   (incl. Padding)
+         2          0          0          3          3          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -697,15 +720,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      2344        770         32        116       1156      12348   Grand Totals
-      2344        770         32        116       1156      12348   ELF Image Totals
-      2344        770         32        116          0          0   ROM Totals
+      2424        786         32        188       1156      12688   Grand Totals
+      2424        786         32        188       1156      12688   ELF Image Totals
+      2424        786         32        188          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                 2376 (   2.32kB)
-    Total RW  Size (RW Data + ZI Data)              1272 (   1.24kB)
-    Total ROM Size (Code + RO Data + RW Data)       2492 (   2.43kB)
+    Total RO  Size (Code + RO Data)                 2456 (   2.40kB)
+    Total RW  Size (RW Data + ZI Data)              1344 (   1.31kB)
+    Total ROM Size (Code + RO Data + RW Data)       2644 (   2.58kB)
 
 ==============================================================================
 

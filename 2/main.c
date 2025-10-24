@@ -14,6 +14,8 @@ void SysTick_Wait1us(uint32_t delay);
 void GPIO_Init(void);
 void PortF_Output(uint32_t leds);
 uint32_t PortJ_Input(void);
+void PortH_Output(uint32_t v);
+
 void PortN_Output(uint32_t leds);
 void AcendeSemaforo1(int32_t led);
 void AcendeSemaforo2(int32_t led);
@@ -24,7 +26,16 @@ void InitLCD(void);
 void ImprimeTexto(uint8_t* texto);
 int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, volatile uint32_t *data_out);
 void GetTecla(void);
-	
+
+void rotacionaMotor(void);
+void passoMotor(void);
+		
+void motor_horario_completo(void);
+void motor_antihorario_completo(void);
+void motor_horario_meio(void);
+void motor_antihorario_meio(void);
+void Motor_Stop_PortH(void);
+
 
 uint8_t ABERTO_MSG[] = "Cofre aberto, digite nova senha";
 uint8_t FECHADO_MSG[] = "Cofre fechado";
@@ -59,75 +70,87 @@ static uint8_t idx = 0;
 static uint8_t flag_ok = 0;
 
 
+uint32_t sentido = 0;
+uint32_t passo = 0;
+uint32_t passoAtual = 0;
+uint32_t PassoCompleto[4] = { 0x03, 0x06, 0x0C, 0x09 }; //todos os 4 passos do ciclo do passo completo
+uint32_t MeioPasso[8] = { 0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09 }; //todos os 8 passos do ciclo do meio passo
+uint32_t limite = 8; // auxilia a funçao de passo
+uint32_t contPassos = 0;
+
+
+uint8_t Flag = 0;
+
 int main(void)
 {
 	PLL_Init();
 	SysTick_Init();
 	GPIO_Init();
 	InitLCD();
-	uint8_t Flag = 0;
+	
 		
 	cofre.estado = ABERTO;	
 	
 	while (1)
 	{
-//		switch(i)
-//		{
-//			case 0:
-//				cofre.estado = ABERTO;
-//				cofre.mensagem = ABERTO_MSG;
-//				
-//				break;
-//			case 1: 
-//				tempo = 2000;
-//				
-//				break;
-//			case 2:
-//				tempo = 4000;
-//			
-//				break;
-//			case 3:
-//				tempo = 2000;
-//			
-//				break;
-//			case 4:
-//				tempo = 20000;
-//			
-//				break;
-//			case 5:
-//				tempo = 4000;
-//			
-//				break;
-//			default:
-//				tempo = 2000;
-//				i = 0;
-//				
-//		}
-/*
-		tecla = Teclas_Input(&GPIO_PORTL_DATA_R, &GPIO_PORTM_DIR_R, &GPIO_PORTM_DATA_R);
-		if(tecla != -1)
-		{
-			ImprimeTexto((uint8_t*)buf);
-		}*/
-		GetTecla();
-		if (flag_ok ==1) {
-            flag_ok = 0;
-        }
-				
+		/*
+		while(1 > 0){
+					rotacionaMotor();
+				}*/
+
 
 		switch(cofre.estado)
 		{
 			case ABERTO:
 				if(Flag == 0)
 				{
+					ImprimeTexto(ABERTO_MSG);
+					Flag = 1;
+				}
+				GetTecla();
+				if (flag_ok ==1) {
+					flag_ok = 0;
+				}
+				break;
+				
+			case FECHANDO:
+				if(Flag == 0)
+				{
+					ImprimeTexto(FECHANDO_MSG);
 					
-					//ImprimeTexto(ABERTO_MSG);
+					// ativa motor
 					Flag = 1;
 				}
 				break;
-		}  
-
-		
+				
+			case FECHADO:
+				if(Flag == 0)
+				{
+					ImprimeTexto(FECHADO_MSG);
+					
+					// chama GetTecla e verifica se a senha inserida e igual a senha, se for muda de estado para abrindo
+					Flag = 1;
+				}
+				break;
+				
+			case ABRINDO:
+				if(Flag == 0)
+				{
+					ImprimeTexto(ABRINDO_MSG);
+					// ativa motor e depois muda para o estado ABERTO
+					Flag = 1;
+				}
+				break;
+				
+			case TRAVADO:
+				if(Flag == 0)
+				{
+					ImprimeTexto(TRAVADO_MSG);
+					// muda no gettecla se foi informada 3 senhas incorretas....
+					Flag = 1;
+				}
+				break;
+		}  	
 	}
 }
 
@@ -148,18 +171,125 @@ static void GetTecla(void) {
             senha[idx++] = (char)('0' + t);
             senha[idx] = '\0';
         } 
+
 				else {
 					idx = 0;
           senha[0] = '\0';
 					SetLCDInstrucao(0x01);
         }
     } 
+		else if(idx == 4 && t == 11){ // Senha de 4 digitos inserida e # pressionada muda o estado
+					Flag = 0;
+					cofre.estado = FECHANDO;
+				}
+		
 		else if (t == 11) {
         flag_ok = 1;
     }
-
-    ImprimeTexto(senha);
+		
+    ImprimeTexto(senha);	
 }
+
+
+void rotacionaMotor(void){
+	SysTick_Wait1ms(2);
+	passoMotor();
+}
+
+void passoMotor(void) {
+	
+	if(passo == 2){
+		PortH_Output(MeioPasso[passoAtual]);
+		limite = 8;
+	}
+	else{
+		PortH_Output(PassoCompleto[passoAtual]);
+		limite = 4;
+	}
+	if (sentido == 1) {
+		++passoAtual;
+		if (passoAtual >= limite) {
+			passoAtual = 0;
+		}
+	} else {
+		if (passoAtual == 0) {
+			passoAtual = (limite - 1);
+		} else {
+			--passoAtual;
+		}
+	}
+	contPassos++;
+}
+
+
+void motor_antihorario_completo(void)
+{
+    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 (NOT 0001) - Ativa bobina 1
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0D;  // ~0x02 (NOT 0010) - Ativa bobina 2
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0B;  // ~0x04 (NOT 0100) - Ativa bobina 3
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x07;  // ~0x08 (NOT 1000) - Ativa bobina 4
+    SysTick_Wait1ms(20);  // Delay
+
+}
+
+void motor_horario_completo(void)
+{
+    GPIO_PORTH_AHB_DATA_R = 0x07;  // ~0x08 - Ativa bobina 4
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0B;  // ~0x04 - Ativa bobina 3
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0D;  // ~0x02 - Ativa bobina 2
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Ativa bobina 1
+    SysTick_Wait1ms(20);  // Delay
+}
+
+void motor_antihorario_meio(void)
+{
+    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Ativa bobina 1
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0C;  // ~0x03 - Ativa bobinas 1+2
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0D;  // ~0x02 - Ativa bobina 2
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x09;  // ~0x06 - Ativa bobinas 2+3
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0B;  // ~0x04 - Ativa bobina 3
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x03;  // ~0x0C - Ativa bobinas 3+4
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x07;  // ~0x08 - Ativa bobina 4
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Volta para bobina 1
+    SysTick_Wait1ms(20);  // Delay
+}
+
+void motor_horario_meio(void)
+{
+    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Ativa bobina 1
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x07;  // ~0x08 - Ativa bobina 4
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x03;  // ~0x0C - Ativa bobinas 3+4
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0B;  // ~0x04 - Ativa bobina 3
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x09;  // ~0x06 - Ativa bobinas 2+3
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0D;  // ~0x02 - Ativa bobina 2
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0C;  // ~0x03 - Ativa bobinas 1+2
+    SysTick_Wait1ms(20);  // Delay
+    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Volta para bobina 1
+    SysTick_Wait1ms(20);  // Delay
+}
+
+
+
+
 
 
 

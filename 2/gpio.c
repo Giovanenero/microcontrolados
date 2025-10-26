@@ -205,7 +205,7 @@ void PortN_Output(uint32_t valor)
 void PortP_Output(uint32_t v) {
     uint32_t valor = v & 0x20;
 
-    GPIO_PORTP_DATA_R = (GPIO_PORTQ_DATA_R & ~(0x0Fu)) | valor; 
+    GPIO_PORTP_DATA_R = (GPIO_PORTP_DATA_R & ~(0x0Fu)) | valor; 
 }
 
 void PortQ_Output(uint32_t v) {
@@ -264,3 +264,13 @@ int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, vol
     return -1;
 }
 
+void IniciaInterrupcao(void) {
+	GPIO_PORTJ_AHB_IM_R = 0x0;
+	GPIO_PORTJ_AHB_IS_R = 0x0;
+	GPIO_PORTJ_AHB_IBE_R = 0x0;
+	GPIO_PORTJ_AHB_IEV_R = 0x0;
+	GPIO_PORTJ_AHB_ICR_R = 0x1;
+	
+	NVIC_EN1_R = 0x80000;
+	NVIC_PRI12_R = (5<<29);
+}

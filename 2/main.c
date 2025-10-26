@@ -12,6 +12,7 @@ void SysTick_Init(void);
 void SysTick_Wait1ms(uint32_t delay);
 void SysTick_Wait1us(uint32_t delay);
 void GPIO_Init(void);
+
 void PortF_Output(uint32_t leds);
 uint32_t PortJ_Input(void);
 void PortH_Output(uint32_t v);
@@ -30,15 +31,15 @@ void GetTecla(void);
 void PiscaLedsPAT(void);
 void rotacionaMotor(void);
 void passoMotor(void);
-		
-void Motor_Stop_PortH(void);
-
+void IniciaInterrupcao(void);
+void GPIOPortJ_Handler(void);
 
 uint8_t ABERTO_MSG[] = "Cofre aberto, digite nova senha";
 uint8_t FECHADO_MSG[] = "Cofre fechado";
 uint8_t ABRINDO_MSG[] = "Cofre abrindo";
 uint8_t FECHANDO_MSG[] = "Cofre fechando.";
 uint8_t TRAVADO_MSG[] = "Cofre Travado";
+uint8_t SENHA_MESTRA_MSG[] = "Insira a senha mestra";
 
 typedef enum estCofre
 {
@@ -46,7 +47,8 @@ typedef enum estCofre
 	ABERTO,
 	FECHANDO,
 	FECHADO,
-	TRAVADO
+	TRAVADO,
+	SENHA_MESTRA
 } estadosCofre;
 
 typedef struct cofre
@@ -96,10 +98,12 @@ static uint8_t senha_inserida[4 + 1] = {0}; // buffer para o que o usuário digit
 uint8_t tentativas = 0;              // conta erros consecutivos
 static uint8_t idx_inserida = 0;            // tamanho da senha_inserida
 
+// Senha mestra
+uint8_t senha_mestra[4] = {0, 0, 0, 0};
+int32_t VerificaSenhaMestra(void);
 
-
-
-
+// Pisca leds
+volatile uint8_t piscaLeds = 0; // 1 = pisca leds, 0 = para de piscar
 
 uint32_t sentido = 0;
 uint32_t passo = 0;
@@ -116,10 +120,11 @@ int main(void)
 {
 	PLL_Init();
 	SysTick_Init();
-	GPIO_Init();
-	InitLCD();
+	GPIO_Init(); // inicia as portas
+	IniciaInterrupcao(); // inicia a interrupcao na port J
+	InitLCD(); // inicia o display
 	PortP_Output(0x20); // inicia o transistor para controlar os leds da PAT
-		
+	IniciaInterrupcao(); 
 	cofre.estado = ABERTO;	
 	
 	while (1)
@@ -186,11 +191,29 @@ int main(void)
 				{
 					ImprimeTexto(TRAVADO_MSG);
 					PortP_Output(0x20);
-					PiscaLedsPAT();
-					PortP_Output(0x0);
-					//chama interrupcao e pisca leds
+					piscaLeds = 1;	
+					GPIO_PORTJ_AHB_IM_R = 0x1; // Ativa a interrupcao na port J
+					
+					while (piscaLeds && cofre.estado == TRAVADO)
+					{
+						PiscaLedsPAT();
+					}
+					if (cofre.estado == TRAVADO) {
+            Flag = 1;
+        }
+					//Flag = 1;
+				}
+				break;
+				
+			case SENHA_MESTRA:
+				GPIO_PORTJ_AHB_IM_R = 0x0; // desativa a interrupcao na port J
+				if(Flag == 0)
+				{
+					ImprimeTexto(SENHA_MESTRA_MSG);
 					Flag = 1;
 				}
+				VerificaSenhaMestra();
+				PortP_Output(0x0);
 				break;
 		}  	
 	}
@@ -368,6 +391,61 @@ int32_t VerificaSenhaInserida(void) {   // -1=aguardando; 0=errada; 1=ok; -2=ove
     return -1;
 }
 
+int32_t VerificaSenhaMestra(void) {   // -1=aguardando; 0=errada; 1=ok; -2=overflow
+    // Lê tecla
+    int32_t t = Teclas_Input(&GPIO_PORTL_DATA_R, &GPIO_PORTM_DIR_R, &GPIO_PORTM_DATA_R);
+    if (t < 0) return -1;
+
+    // Debounce
+    while (Teclas_Input(&GPIO_PORTL_DATA_R, &GPIO_PORTM_DIR_R, &GPIO_PORTM_DATA_R) >= 0) {
+        SysTick_Wait1ms(10);
+    }
+
+    // Dígitos: acumula em senha[] (ASCII)
+    if (t >= 0 && t <= 9) {
+        if (idx < 4) {
+            senha[idx++] = (uint8_t)('0' + t);
+            senha[idx] = '\0';
+        } else {
+            // overflow: limpa somente a entrada
+            idx = 0;
+            senha[0] = '\0';
+            return -2;
+        }
+        ImprimeTexto(senha);   // se quiser, troque por impressão na 2ª linha
+        return -1;
+    }
+
+    // Validação no '#'
+    if (t == 11) {
+        if (idx != 4) {
+            // tamanho incorreto: apenas aguarda
+            return -1;
+        }
+
+        // Compara senha digitada (ASCII) com senha_mestra (0..9)
+        for (int k = 0; k < 4; k++) {
+            uint8_t dig = (uint8_t)(senha[k] - '0'); // '7' -> 7
+            if (dig != senha_mestra[k]) {
+                // errada: limpa e permanece em SENHA_MESTRA
+                idx = 0;
+                senha[0] = '\0';
+                return 0;
+            }
+        }
+
+        // Correta ? abre
+        Flag = 0;
+        cofre.estado = ABRINDO;
+        idx = 0;
+        senha[0] = '\0';
+        return 1;
+    }
+
+    return -1;
+}
+
+
 
 
 void PiscaLedsPAT(void) 
@@ -385,6 +463,15 @@ void PiscaLedsPAT(void)
 
 
 
+void GPIOPortJ_Handler(void){
+	GPIO_PORTJ_AHB_ICR_R = 0x1; // limpa a interrupcao
+	Flag = 0;
+	piscaLeds = 0;
+	PortP_Output(0x00);
+  idx = 0;
+	senha[0] = '\0';
+	cofre.estado = SENHA_MESTRA;
+}
 
 void AcendeSemaforo1(int32_t led)
 {

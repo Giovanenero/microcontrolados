@@ -9,14 +9,14 @@
 #include "tm4c1294ncpdt.h"
 
 #define GPIO_PORTA  (0x001) //bit 0 - Leds PAT
-#define GPIO_PORTF  (0x020) //bit 6
+#define GPIO_PORTF  (0x020) //bit 6 - Leds placa
 #define GPIO_PORTH  (0x080) //bit 7 - Motor unipolar (PH0 a PH3)
-#define GPIO_PORTJ  (0x0100) //bit 8
+#define GPIO_PORTJ  (0x0100) //bit 8 - Chave SW1
 #define GPIO_PORTK  (0x0200) //bit 9 - Display LCD (PK1 a PK7)
 #define GPIO_PORTL  (0x400) //bit 10 - Teclado matricial (PL0 a PL3)
 #define GPIO_PORTM  (0x800) //bit 11 - Teclado matricial (PM4 a PM7), Display LCD (PM0 a PM2)
-#define GPIO_PORTN  (0x1000) //bit 12
-#define GPIO_PORTP  (0x2000) //bit 13
+#define GPIO_PORTN  (0x1000) //bit 12 - Leds placa
+#define GPIO_PORTP  (0x2000) //bit 13 - Transistor controle Leds PAT
 #define GPIO_PORTQ  (0x4000) //bit 14 - Leds PAT
 void SysTick_Wait1ms(uint32_t delay);
 
@@ -97,7 +97,6 @@ void GPIO_Init(void)
 	GPIO_PORTL_PUR_R = 0x0F;
 }	
 
-
 void PortA_Output(uint32_t v) {
     uint32_t valor = v & 0xF0;
 	
@@ -161,8 +160,7 @@ void InitLCD (void){
 void ImprimeTexto(uint8_t* texto){
 	SetLCDInstrucao(0x01);
 	int i = 0;
-	int size = sizeof(texto) / texto[0]; // Calcula o tamanho do array
-	
+
 	while(texto[i] != '\0'){
 		SetLCDCaracter(texto[i]);
 		i++;
@@ -171,9 +169,6 @@ void ImprimeTexto(uint8_t* texto){
 	}
 	return;
 }
-
-
-
 
 
 // -------------------------------------------------------------------------------
@@ -217,50 +212,43 @@ void PortQ_Output(uint32_t v) {
 int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, volatile uint32_t *data_out)
 {
     uint32_t r;
-
-    // --- Varredura 1 ---
-    // *dir_reg = 0b0100_0111
-    *dir_reg = 0x47;
-    // zera bit 6 (0b0100_0000) na saída -> força 1ª coluna
-    *data_out &= ~0x40;
+		// Coluna 1
+    *dir_reg = 0x47; // 0x07 = PM0 a PM2 + 0x47 = PM6
+    *data_out &= ~0x40; // limpa o bit 6 referente a coluna 1
 
     SysTick_Wait1ms(1);
     r = *data_in;
 
-    if (r == 0xE) return 3;   // 1110
-    if (r == 0xD) return 6;   // 1101
-    if (r == 0xB) return 9;   // 1011
-    if (r == 0x7) return 11;  // 0111
+    if (r == 0xE) return 3; // 1110
+    if (r == 0xD) return 6; // 1101
+    if (r == 0xB) return 9; // 1011
+    if (r == 0x7) return 11; // 0111
 
-    // --- Varredura 2 ---
-    // *dir_reg = 0b0001_0111
-    *dir_reg = 0x17;
-    // zera bit 4 (0b0001_0000) -> 2ª coluna
-    *data_out &= ~0x10;
-
-    SysTick_Wait1ms(1);
-    r = *data_in;             // lê barramento (linhas)
-
-    if (r == 0xE) return 1;
-    if (r == 0xD) return 4;
-    if (r == 0xB) return 7;
-    if (r == 0x7) return 10;
-
-    // --- Varredura 3 ---
-    // *dir_reg = 0b0010_0111
-    *dir_reg = 0x27;
-    // zera bit 5 (0b0010_0000) -> 3ª coluna
-    *data_out &= ~0x20;
+		// Coluna 2
+    *dir_reg = 0x17; // 0x10 = PM4 + 0x07 = PM0 a PM2
+    *data_out &= ~0x10; // limpa o bit 4 referente a coluna 2
 
     SysTick_Wait1ms(1);
     r = *data_in;
 
-    if (r == 0xE) return 2;
-    if (r == 0xD) return 5;
-    if (r == 0xB) return 8;
-    if (r == 0x7) return 0;
+		if (r == 0xE) return 1;   // 1110
+		if (r == 0xD) return 4;   // 1101
+		if (r == 0xB) return 7;   // 1011
+		if (r == 0x7) return 10;  // 0111
+		
+		// Coluna 3
+    *dir_reg = 0x27; // 0x20 = PM5 + 0x07 = PM0 a PM2
+    *data_out &= ~0x20; // limpa o bit 5 referente a coluna 3
 
-    // nenhuma tecla detectada
+    SysTick_Wait1ms(1);
+    r = *data_in;
+
+    if (r == 0xE) return 2;   // 1110
+		if (r == 0xD) return 5;   // 1101
+		if (r == 0xB) return 8;   // 1011
+		if (r == 0x7) return 0;   // 0111
+
+		// Nenhuma tecla identificada
     return -1;
 }
 

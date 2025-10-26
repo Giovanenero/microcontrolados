@@ -27,7 +27,15 @@ Project File Date:  10/07/2025
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-".\Objects\exemplo.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+main.c(95): warning:  #177-D: variable "senha_inserida"  was declared but never referenced
+  static uint8_t senha_inserida[4 + 1] = {0}; // buffer para o que o usuário digita agora
+main.c(97): warning:  #177-D: variable "idx_inserida"  was declared but never referenced
+  static uint8_t idx_inserida = 0;            // tamanho da senha_inserida
+main.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=3124 RO-data=32 RW-data=204 ZI-data=1124  
+".\Objects\exemplo.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 

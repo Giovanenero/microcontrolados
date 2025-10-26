@@ -15,18 +15,19 @@ void GPIO_Init(void);
 void PortF_Output(uint32_t leds);
 uint32_t PortJ_Input(void);
 void PortH_Output(uint32_t v);
-
+void PortA_Output(uint32_t v);
 void PortN_Output(uint32_t leds);
 void AcendeSemaforo1(int32_t led);
 void AcendeSemaforo2(int32_t led);
-
+void PortP_Output(uint32_t v);
+void PortQ_Output(uint32_t v);
 void SetLCDInstrucao(uint32_t inst);
 void SetLCDCaracter(uint8_t caracter);
 void InitLCD(void);
 void ImprimeTexto(uint8_t* texto);
 int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, volatile uint32_t *data_out);
 void GetTecla(void);
-
+void PiscaLedsPAT(void);
 void rotacionaMotor(void);
 void passoMotor(void);
 		
@@ -117,7 +118,7 @@ int main(void)
 	SysTick_Init();
 	GPIO_Init();
 	InitLCD();
-	
+	PortP_Output(0x20); // inicia o transistor para controlar os leds da PAT
 		
 	cofre.estado = ABERTO;	
 	
@@ -127,8 +128,8 @@ int main(void)
 		while(1 > 0){
 					rotacionaMotor();
 				}*/
-
-
+		
+		
 		switch(cofre.estado)
 		{
 			case ABERTO:
@@ -184,6 +185,9 @@ int main(void)
 				if(Flag == 0)
 				{
 					ImprimeTexto(TRAVADO_MSG);
+					PortP_Output(0x20);
+					PiscaLedsPAT();
+					PortP_Output(0x0);
 					//chama interrupcao e pisca leds
 					Flag = 1;
 				}
@@ -366,6 +370,18 @@ int32_t VerificaSenhaInserida(void) {   // -1=aguardando; 0=errada; 1=ok; -2=ove
 
 
 
+void PiscaLedsPAT(void) 
+{
+		PortA_Output(0xFF); // LEDS 1 A 4 (1111 1111 = 0XFF)
+		PortQ_Output(0xF); // LEDS 5 A 8 (1111 = 0XF)
+	
+		SysTick_Wait1ms(1000);
+	
+		PortA_Output(0x0);
+		PortQ_Output(0x0);
+	
+		SysTick_Wait1ms(1000);
+}
 
 
 

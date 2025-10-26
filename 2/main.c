@@ -30,10 +30,6 @@ void GetTecla(void);
 void rotacionaMotor(void);
 void passoMotor(void);
 		
-void motor_horario_completo(void);
-void motor_antihorario_completo(void);
-void motor_horario_meio(void);
-void motor_antihorario_meio(void);
 void Motor_Stop_PortH(void);
 
 
@@ -65,9 +61,43 @@ cofreTipo cofre;
 
 int32_t tecla = -1;
 char buf[12];
-static uint8_t senha[16 + 1]; // 16 senha (4 caracteres) + \0
+static uint8_t senha[4 + 1]; // 16 senha (4 caracteres) + \0
 static uint8_t idx = 0;
 static uint8_t flag_ok = 0;
+
+// Motor
+typedef enum {
+  DIR_HORARIO = 1,
+  DIR_ANTIHORARIO = 0
+} sentido_t;
+
+typedef enum {
+  MODO_PASSO_COMPLETO = 0,
+  MODO_MEIO_PASSO     = 1
+} modo_passo_t;
+
+// 28BYJ-48: 2048 passos/volta em MEIO PASSO
+#define STEPS_PER_REV_HALF   2048U
+#define STEPS_PER_REV_FULL   (STEPS_PER_REV_HALF / 2U)  // 1024 em passo completo
+#define STEP_DELAY_MS        5U 
+
+void start_motor(sentido_t sentido, modo_passo_t modo);
+
+
+// Insere senha
+uint8_t senha_salva[4];
+uint8_t idx_salva = 0;
+
+// Verifica senha
+int32_t VerificaSenhaInserida(void);
+
+static uint8_t senha_inserida[4 + 1] = {0}; // buffer para o que o usuário digita agora
+uint8_t tentativas = 0;              // conta erros consecutivos
+static uint8_t idx_inserida = 0;            // tamanho da senha_inserida
+
+
+
+
 
 
 uint32_t sentido = 0;
@@ -117,9 +147,13 @@ int main(void)
 				if(Flag == 0)
 				{
 					ImprimeTexto(FECHANDO_MSG);
-					
-					// ativa motor
-					Flag = 1;
+					SysTick_Wait1ms(1000);
+					/*
+					for(int i=0; i <= 3; i++){
+							start_motor(DIR_ANTIHORARIO, MODO_MEIO_PASSO);
+					}*/
+					Flag = 0;
+					cofre.estado = FECHADO;
 				}
 				break;
 				
@@ -127,18 +161,22 @@ int main(void)
 				if(Flag == 0)
 				{
 					ImprimeTexto(FECHADO_MSG);
-					
-					// chama GetTecla e verifica se a senha inserida e igual a senha, se for muda de estado para abrindo
 					Flag = 1;
 				}
+				VerificaSenhaInserida();
 				break;
 				
 			case ABRINDO:
 				if(Flag == 0)
 				{
 					ImprimeTexto(ABRINDO_MSG);
-					// ativa motor e depois muda para o estado ABERTO
-					Flag = 1;
+					SysTick_Wait1ms(1000);
+					/*
+					for(int i=0; i <= 3; i++){
+							start_motor(DIR_HORARIO, MODO_PASSO_COMPLETO);
+					}*/
+					Flag = 0;
+					cofre.estado = ABERTO;
 				}
 				break;
 				
@@ -146,7 +184,7 @@ int main(void)
 				if(Flag == 0)
 				{
 					ImprimeTexto(TRAVADO_MSG);
-					// muda no gettecla se foi informada 3 senhas incorretas....
+					//chama interrupcao e pisca leds
 					Flag = 1;
 				}
 				break;
@@ -167,6 +205,7 @@ static void GetTecla(void) {
     }
 
     if (t >= 0 && t <= 9) {
+			
         if (idx < 4) {
             senha[idx++] = (char)('0' + t);
             senha[idx] = '\0';
@@ -180,16 +219,23 @@ static void GetTecla(void) {
     } 
 		else if(idx == 4 && t == 11){ // Senha de 4 digitos inserida e # pressionada muda o estado
 					Flag = 0;
+					// converte a senha digitada para int e salva em senha_salva
+					for (int k = 0; k < 4; k++) {
+								uint8_t caracter = senha[k];
+								senha_salva[k] = (uint8_t)(caracter - '0'); // salva como 0 a 9
+					}
+					idx = 0;
+					senha[0] = '\0';
 					cofre.estado = FECHANDO;
 				}
 		
 		else if (t == 11) {
         flag_ok = 1;
+			
     }
 		
     ImprimeTexto(senha);	
 }
-
 
 void rotacionaMotor(void){
 	SysTick_Wait1ms(2);
@@ -222,69 +268,100 @@ void passoMotor(void) {
 }
 
 
-void motor_antihorario_completo(void)
-{
-    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 (NOT 0001) - Ativa bobina 1
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0D;  // ~0x02 (NOT 0010) - Ativa bobina 2
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0B;  // ~0x04 (NOT 0100) - Ativa bobina 3
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x07;  // ~0x08 (NOT 1000) - Ativa bobina 4
-    SysTick_Wait1ms(20);  // Delay
 
+
+void start_motor(sentido_t sentido, modo_passo_t modo)
+{
+  const uint32_t limite = (modo == MODO_MEIO_PASSO) ? 8U : 4U;
+  const uint32_t total_passos = (modo == MODO_MEIO_PASSO) ? STEPS_PER_REV_HALF : STEPS_PER_REV_FULL;
+
+  uint32_t idx = 0U;  // começa no primeiro estado da sequência
+
+  for (uint32_t s = 0; s < total_passos; s++) {
+
+    if (modo == MODO_MEIO_PASSO) {
+      PortH_Output(MeioPasso[idx]);      // usa seu padrão de meio passo
+    } else {
+      PortH_Output(PassoCompleto[idx]);  // usa seu padrão de passo completo
+    }
+
+    SysTick_Wait1ms(STEP_DELAY_MS);
+
+    // avança ou retrocede o índice conforme o sentido
+    if (sentido == DIR_ANTIHORARIO) {
+      idx++;
+      if (idx >= limite) idx = 0U;
+    } else {
+      if (idx == 0U) idx = (limite - 1U);
+      else idx--;
+    }
+  }
+
+  // Opcional: se quiser desenergizar após a volta, chame aqui sua função de stop.
+  // Motor_Stop_PortH();
 }
 
-void motor_horario_completo(void)
-{
-    GPIO_PORTH_AHB_DATA_R = 0x07;  // ~0x08 - Ativa bobina 4
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0B;  // ~0x04 - Ativa bobina 3
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0D;  // ~0x02 - Ativa bobina 2
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Ativa bobina 1
-    SysTick_Wait1ms(20);  // Delay
-}
 
-void motor_antihorario_meio(void)
-{
-    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Ativa bobina 1
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0C;  // ~0x03 - Ativa bobinas 1+2
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0D;  // ~0x02 - Ativa bobina 2
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x09;  // ~0x06 - Ativa bobinas 2+3
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0B;  // ~0x04 - Ativa bobina 3
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x03;  // ~0x0C - Ativa bobinas 3+4
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x07;  // ~0x08 - Ativa bobina 4
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Volta para bobina 1
-    SysTick_Wait1ms(20);  // Delay
-}
+int32_t VerificaSenhaInserida(void) {   // -1=aguardando; 0=errada; 1=ok; -2=overflow limpado
+    // 1) Lê uma tecla
+    int32_t t = Teclas_Input(&GPIO_PORTL_DATA_R, &GPIO_PORTM_DIR_R, &GPIO_PORTM_DATA_R);
+    if (t < 0) {
+        return -1; // nenhuma tecla
+    }
 
-void motor_horario_meio(void)
-{
-    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Ativa bobina 1
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x07;  // ~0x08 - Ativa bobina 4
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x03;  // ~0x0C - Ativa bobinas 3+4
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0B;  // ~0x04 - Ativa bobina 3
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x09;  // ~0x06 - Ativa bobinas 2+3
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0D;  // ~0x02 - Ativa bobina 2
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0C;  // ~0x03 - Ativa bobinas 1+2
-    SysTick_Wait1ms(20);  // Delay
-    GPIO_PORTH_AHB_DATA_R = 0x0E;  // ~0x01 - Volta para bobina 1
-    SysTick_Wait1ms(20);  // Delay
+    // Debounce
+    while (Teclas_Input(&GPIO_PORTL_DATA_R, &GPIO_PORTM_DIR_R, &GPIO_PORTM_DATA_R) >= 0) {
+        SysTick_Wait1ms(10);
+    }
+
+    // 2) Dígitos 0..9: acumula em senha[] (máx 4)
+    if (t >= 0 && t <= 9) {
+        if (idx < 4) {
+            senha[idx++] = (uint8_t)('0' + t);  // guarda ASCII
+            senha[idx] = '\0';
+        } else {
+            // overflow: limpa como no seu GetTecla
+            idx = 0;
+            senha[0] = '\0';
+            return -2;
+        }
+        ImprimeTexto(senha);
+        return -1; // ainda aguardando '#'
+    }
+
+    // 3) Tecla '#': validar
+    if (t == 11) {
+        if (idx != 4) {
+            return -1; // incompleta
+        }
+
+        // compara senha[] (ASCII) com senha_salva[] (0..9)
+        for (int k = 0; k < 4; k++) {
+            uint8_t dig = (uint8_t)(senha[k] - '0'); // '7' -> 7
+            if (dig != senha_salva[k]) {
+                // senha errada
+                tentativas++;
+                idx = 0;
+                senha[0] = '\0';
+                if (tentativas >= 3) {
+                    Flag = 0;
+                    cofre.estado = TRAVADO;
+                }
+                return 0;
+            }
+        }
+
+        // senha correta
+        tentativas = 0;
+        Flag = 0;
+        cofre.estado = ABRINDO;
+        idx = 0;
+        senha[0] = '\0';
+        return 1;
+    }
+
+    // 4) Outras teclas: ignora
+    return -1;
 }
 
 

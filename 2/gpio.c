@@ -211,9 +211,10 @@ void PortQ_Output(uint32_t v) {
 
 int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, volatile uint32_t *data_out)
 {
+		// Valor fica 1 se a coluna nao for pressionada
     uint32_t r;
 		// Coluna 1
-    *dir_reg = 0x47; // 0x07 = PM0 a PM2 + 0x47 = PM6
+    *dir_reg = 0x47; // 0x07 = PL0 a PL2 + 0x47 = PM6
     *data_out &= ~0x40; // limpa o bit 6 referente a coluna 1
 
     SysTick_Wait1ms(1);
@@ -225,7 +226,7 @@ int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, vol
     if (r == 0x7) return 11; // 0111
 
 		// Coluna 2
-    *dir_reg = 0x17; // 0x10 = PM4 + 0x07 = PM0 a PM2
+    *dir_reg = 0x17; // 0x10 = PM4 + 0x07 = PL0 a PL2
     *data_out &= ~0x10; // limpa o bit 4 referente a coluna 2
 
     SysTick_Wait1ms(1);
@@ -237,7 +238,7 @@ int32_t Teclas_Input(volatile uint32_t *data_in, volatile uint32_t *dir_reg, vol
 		if (r == 0x7) return 10;  // 0111
 		
 		// Coluna 3
-    *dir_reg = 0x27; // 0x20 = PM5 + 0x07 = PM0 a PM2
+    *dir_reg = 0x27; // 0x20 = PM5 + 0x07 = PL0 a PL2
     *data_out &= ~0x20; // limpa o bit 5 referente a coluna 3
 
     SysTick_Wait1ms(1);

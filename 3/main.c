@@ -14,9 +14,6 @@ void SysTick_Wait1us(uint32_t delay);
 void GPIO_Init(void);
 void UART_Init(void);
 
-void PortF_Output(uint32_t leds);
-void PortN_Output(uint32_t leds);
-
 // Estados
 typedef enum estMotor
 {
@@ -49,6 +46,10 @@ void SetUART(uint8_t valor);
 void ImprimeFraseUART(uint8_t* texto);
 void SetEstado(void);
 void ClearUART(void);
+void ImprimeValores(void);
+void ImprimeVelocidadeUART(uint32_t num);
+uint32_t contador = 0;
+
 uint8_t INICIAL_MSG[] = "Motor parado, pressione * para iniciar";
 uint8_t MODO_CONTROLE_MSG[] = "Defina o modo de controle do motor: p = potenciometro, t = terminal";
 uint8_t MODO_SENTIDO_MSG[] = "Defina o sentido de rotacao: h = horario, a = anti-horario";
@@ -122,6 +123,8 @@ int main(void)
 			
 			case MOTOR_LIGADO:
 				//LigaMotor
+				//ImprimeValores();
+				SetEstado();
 				break;
 		}
 	}
@@ -166,6 +169,60 @@ void ImprimeFraseUART(uint8_t* texto)
 		i++;
 	}
 }
+
+void ImprimeFraseUARTSemClear(uint8_t* texto)
+{
+	uint8_t i= 0;
+	while(texto[i] != '\0'){
+		SetUART(texto[i]);
+		i++;
+	}
+}
+/*
+void ImprimeVelocidadeUART(uint32_t num)
+{
+    if (num == 0) {
+        SetUART('0');
+        return;
+    }
+
+    // imprime centena (se tiver)
+    if (num >= 100) {
+        SetUART((num / 100) + '0'); // dígito das centenas
+        num = num % 100;
+    }
+
+    // imprime dezena (se tiver)
+    if (num >= 10) {
+        SetUART((num / 10) + '0'); // dígito das dezenas
+        num = num % 10;
+    }
+
+    // imprime unidade
+    SetUART(num + '0');
+}*/
+void ImprimeVelocidadeUART(uint32_t num)
+{
+    char buffer[10];
+    int i = 0;
+
+    if (num == 0) {
+        SetUART('0');
+        return;
+    }
+
+    // monta o número ao contrário no buffer
+    while (num > 0 && i < 10) {
+        buffer[i++] = (num % 10) + '0';  // pega o último dígito
+        num /= 10;
+    }
+
+    // imprime na ordem certa
+    while (i > 0) {
+        SetUART(buffer[--i]);
+    }
+}
+
 
 void ClearUART(void)
 {
@@ -229,39 +286,39 @@ void SetEstado()
 	
 	else if(motor.estado == MODO_VELOCIDADE)
 	{
-		if(value == '5') // velocidade = 50%
+		if(value == 5) // velocidade = 50%
 		{
 			motor.velocidade = 50;
 			motor.estado = MOTOR_LIGADO;
 			Flag = 0;
 		}
-		else if(value == '6') // velocidade = 60%
+		else if(value == 6) // velocidade = 60%
 		{
 			motor.velocidade = 60;
 			motor.estado = MOTOR_LIGADO;
 			Flag = 0;
 		}
-		else if(value == '7') // velocidade = 70%
+		else if(value == 7) // velocidade = 70%
 		{
-			motor.velocidade = 60;
+			motor.velocidade = 70;
 			motor.estado = MOTOR_LIGADO;
 			Flag = 0;
 		}
-		else if(value == '8') // velocidade = 80%
+		else if(value == 8) // velocidade = 80%
 		{
-			motor.velocidade = 60;
+			motor.velocidade = 80;
 			motor.estado = MOTOR_LIGADO;
 			Flag = 0;
 		}
-		else if(value == '9') // velocidade = 90%
+		else if(value == 9) // velocidade = 90%
 		{
-			motor.velocidade = 60;
+			motor.velocidade = 90;
 			motor.estado = MOTOR_LIGADO;
 			Flag = 0;
 		}
-		else if(value == '0') // velocidade = 100%
+		else if(value == 0) // velocidade = 100%
 		{
-			motor.velocidade = 60;
+			motor.velocidade = 100;
 			motor.estado = MOTOR_LIGADO;
 			Flag = 0;
 		}
@@ -280,29 +337,29 @@ void SetEstado()
 		}
 		
 		//Altera a velocidade
-		if(value == '5') // velocidade = 50%
+		if(value == 5) // velocidade = 50%
 		{
 			motor.velocidade = 50;
 		}
-		else if(value == '6') // velocidade = 60%
+		else if(value == 6) // velocidade = 60%
 		{
 			motor.velocidade = 60;
 		}
-		else if(value == '7') // velocidade = 70%
+		else if(value == 7) // velocidade = 70%
 		{
-			motor.velocidade = 60;
+			motor.velocidade = 70;
 		}
-		else if(value == '8') // velocidade = 80%
+		else if(value == 8) // velocidade = 80%
 		{
-			motor.velocidade = 60;
+			motor.velocidade = 80;
 		}
-		else if(value == '9') // velocidade = 90%
+		else if(value == 9) // velocidade = 90%
 		{
-			motor.velocidade = 60;
+			motor.velocidade = 90;
 		}
-		else if(value == '0') // velocidade = 100%
+		else if(value == 0) // velocidade = 100%
 		{
-			motor.velocidade = 60;
+			motor.velocidade = 100;
 		}
 		
 		//Para o motor
@@ -312,30 +369,47 @@ void SetEstado()
 			motor.estado = INICIAL;
 			Flag = 0;
 		}
-	}
-	
-}
-	
-void AcendeLeds(int8_t led)
-{
-	switch(led) {
-		case 1:
-			PortN_Output(0x02);
-			break;
-		case 2:
-			PortN_Output(0x01);
-			break;
-		case 3:
-			PortF_Output(0x10);
-			break;
-		case 4:
-			PortF_Output(0x03);
-			break;
-		case 5:
-			PortN_Output(0x0);
-			PortF_Output(0x0);
-			break;
+		else
+		{
+			ImprimeValores();
+		}
 	}
 }
 
+void ImprimeValores(void)
+{
+	SysTick_Wait1ms(1);
+	contador++;
+	
+	if(contador >= 1000)
+	{
+		uint8_t SentidoHorario[] = "Sentido: Horario, ";
+		uint8_t SentidoAntiHorario[] = "Sentido: Anti-horario, ";
+		uint8_t Velocidade[] = "Velocidade: ";
+		
+		ClearUART();
+		if(motor.sentido == 0)
+		{
+			ImprimeFraseUARTSemClear(SentidoHorario);
+		}
+		else if(motor.sentido == 1)
+		{
+			ImprimeFraseUARTSemClear(SentidoAntiHorario);
+		}
+		
+		ImprimeFraseUARTSemClear(Velocidade);
+		//SetUART(motor.velocidade);
+		ImprimeVelocidadeUART(motor.velocidade);
+		SetUART('%');
+		contador = 0;
+	}
+	/*
+	else
+	{
+	uint8_t Velocidade[] = "Velocidade: ";
+	ImprimeFraseUARTSemClear(Velocidade);
+	}*/
+
+	
+}
 

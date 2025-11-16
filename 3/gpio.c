@@ -8,9 +8,9 @@
 
 #include "tm4c1294ncpdt.h"
 
-#define GPIO_PORTA  (0x001) //bit 0 - Leds PAT
-#define GPIO_PORTE  (0x010) //bit 0 - Leds PAT
-#define GPIO_PORTF  (0x020) //bit 6 - Leds placa
+#define GPIO_PORTA  (0x001) // UART
+#define GPIO_PORTE  (0x010) // Potenciometro e ADC
+#define GPIO_PORTF  (0x020) // 
 
 void SysTick_Wait1ms(uint32_t delay);
 

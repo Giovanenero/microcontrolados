@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Objects\exemplo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\exemplo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Sun Nov 16 19:11:36 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Sun Nov 16 20:19:44 2025
 <BR><P>
-<H3>Maximum Stack Usage =        124 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        108 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 __rt_entry_main &rArr; main &rArr; SetEstado &rArr; ImprimeValores &rArr; ImprimeVelocidadeUART
 <P>
@@ -19,8 +19,8 @@ Functions with no stack information
  <LI><a href="#[be]">EndCritical</a>
  <LI><a href="#[bf]">WaitForInterrupt</a>
  <LI><a href="#[81]">__user_initial_stackheap</a>
- <LI><a href="#[91]">PLL_Init</a>
- <LI><a href="#[92]">SysTick_Init</a>
+ <LI><a href="#[92]">PLL_Init</a>
+ <LI><a href="#[93]">SysTick_Init</a>
  <LI><a href="#[8c]">SysTick_Wait1ms</a>
 </UL>
 </UL>
@@ -629,7 +629,7 @@ Global Symbols
 <P><STRONG><a name="[b8]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[79]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 124 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 108 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; SetEstado &rArr; ImprimeValores &rArr; ImprimeVelocidadeUART
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;exit
@@ -666,11 +666,11 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__user_setup_stackheap
 </UL>
 
-<P><STRONG><a name="[91]"></a>PLL_Init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, utils.o(.text))
+<P><STRONG><a name="[92]"></a>PLL_Init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, utils.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[92]"></a>SysTick_Init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, utils.o(.text))
+<P><STRONG><a name="[93]"></a>SysTick_Init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, utils.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
@@ -682,8 +682,7 @@ Global Symbols
 <P><STRONG><a name="[8d]"></a>__aeabi_memcpy4</STRONG> (Thumb, 0 bytes, Stack size 8 bytes, rt_memcpy_w.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = __aeabi_memcpy4
 </UL>
-<BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
+<BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
 </UL>
 
 <P><STRONG><a name="[c0]"></a>__aeabi_memcpy8</STRONG> (Thumb, 0 bytes, Stack size 8 bytes, rt_memcpy_w.o(.text), UNUSED)
@@ -735,7 +734,7 @@ Global Symbols
 
 <P><STRONG><a name="[ca]"></a>__semihosting_library_function</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, indicate_semi.o(.text), UNUSED)
 
-<P><STRONG><a name="[95]"></a>ADC_Init</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, gpio.o(i.ADC_Init))
+<P><STRONG><a name="[96]"></a>ADC_Init</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, gpio.o(i.ADC_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
@@ -753,8 +752,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetUART
 </UL>
-<BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
+<BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
 <LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeFraseUART
 </UL>
 
@@ -763,19 +761,19 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PortF_Output
 </UL>
-<BR>[Called By]<UL><LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetEstado
+<BR>[Called By]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetEstado
 </UL>
 
-<P><STRONG><a name="[93]"></a>GPIO_Init</STRONG> (Thumb, 126 bytes, Stack size 0 bytes, gpio.o(i.GPIO_Init))
+<P><STRONG><a name="[94]"></a>GPIO_Init</STRONG> (Thumb, 126 bytes, Stack size 0 bytes, gpio.o(i.GPIO_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[97]"></a>GetPotenciometro</STRONG> (Thumb, 70 bytes, Stack size 0 bytes, main.o(i.GetPotenciometro))
-<BR><BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<P><STRONG><a name="[8f]"></a>GetPotenciometro</STRONG> (Thumb, 70 bytes, Stack size 0 bytes, main.o(i.GetPotenciometro))
+<BR><BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
 </UL>
 
-<P><STRONG><a name="[90]"></a>GetUART</STRONG> (Thumb, 54 bytes, Stack size 0 bytes, main.o(i.GetUART))
-<BR><BR>[Called By]<UL><LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetEstado
+<P><STRONG><a name="[91]"></a>GetUART</STRONG> (Thumb, 54 bytes, Stack size 0 bytes, main.o(i.GetUART))
+<BR><BR>[Called By]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetEstado
 </UL>
 
 <P><STRONG><a name="[89]"></a>ImprimeFraseUART</STRONG> (Thumb, 30 bytes, Stack size 12 bytes, main.o(i.ImprimeFraseUART))
@@ -792,22 +790,22 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetUART
 </UL>
-<BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
+<BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
 </UL>
 
-<P><STRONG><a name="[8b]"></a>ImprimeValores</STRONG> (Thumb, 122 bytes, Stack size 64 bytes, main.o(i.ImprimeValores))
-<BR><BR>[Stack]<UL><LI>Max Depth = 84 + Unknown Stack Size
+<P><STRONG><a name="[8b]"></a>ImprimeValores</STRONG> (Thumb, 248 bytes, Stack size 80 bytes, main.o(i.ImprimeValores))
+<BR><BR>[Stack]<UL><LI>Max Depth = 100 + Unknown Stack Size
 <LI>Call Chain = ImprimeValores &rArr; ImprimeVelocidadeUART
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 <LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetUART
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeVelocidadeUART
 <LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeFraseUARTSemClear
+<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetPotenciometro
 <LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ClearUART
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Wait1ms
 </UL>
-<BR>[Called By]<UL><LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetEstado
+<BR>[Called By]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetEstado
 </UL>
 
 <P><STRONG><a name="[8e]"></a>ImprimeVelocidadeUART</STRONG> (Thumb, 72 bytes, Stack size 20 bytes, main.o(i.ImprimeVelocidadeUART))
@@ -815,8 +813,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetUART
 </UL>
-<BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
+<BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
 </UL>
 
 <P><STRONG><a name="[84]"></a>PortE_Output</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, gpio.o(i.PortE_Output))
@@ -829,20 +826,19 @@ Global Symbols
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AtivaMotor
 </UL>
 
-<P><STRONG><a name="[8f]"></a>SetEstado</STRONG> (Thumb, 504 bytes, Stack size 8 bytes, main.o(i.SetEstado))
-<BR><BR>[Stack]<UL><LI>Max Depth = 92 + Unknown Stack Size
+<P><STRONG><a name="[90]"></a>SetEstado</STRONG> (Thumb, 550 bytes, Stack size 8 bytes, main.o(i.SetEstado))
+<BR><BR>[Stack]<UL><LI>Max Depth = 108 + Unknown Stack Size
 <LI>Call Chain = SetEstado &rArr; ImprimeValores &rArr; ImprimeVelocidadeUART
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
-<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetUART
+<LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetUART
 <LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DesativaMotor
 </UL>
 <BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[87]"></a>SetUART</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, main.o(i.SetUART))
-<BR><BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeVelocidadeUART
+<BR><BR>[Called By]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeVelocidadeUART
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeValores
 <LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeFraseUARTSemClear
 <LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeFraseUART
@@ -856,34 +852,28 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup.o(RESET)
 </UL>
-<P><STRONG><a name="[96]"></a>Timer_Init</STRONG> (Thumb, 104 bytes, Stack size 0 bytes, gpio.o(i.Timer_Init))
+<P><STRONG><a name="[97]"></a>Timer_Init</STRONG> (Thumb, 104 bytes, Stack size 0 bytes, gpio.o(i.Timer_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[94]"></a>UART_Init</STRONG> (Thumb, 54 bytes, Stack size 0 bytes, gpio.o(i.UART_Init))
+<P><STRONG><a name="[95]"></a>UART_Init</STRONG> (Thumb, 54 bytes, Stack size 0 bytes, gpio.o(i.UART_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[7a]"></a>main</STRONG> (Thumb, 278 bytes, Stack size 32 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 124 + Unknown Stack Size
+<P><STRONG><a name="[7a]"></a>main</STRONG> (Thumb, 178 bytes, Stack size 0 bytes, main.o(i.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 108 + Unknown Stack Size
 <LI>Call Chain = main &rArr; SetEstado &rArr; ImprimeValores &rArr; ImprimeVelocidadeUART
 </UL>
-<BR>[Calls]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
-<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Timer_Init
-<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
-<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_Init
-<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetUART
-<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetEstado
-<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeVelocidadeUART
-<LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeFraseUARTSemClear
+<BR>[Calls]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
+<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Timer_Init
+<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_Init
+<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SetEstado
 <LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ImprimeFraseUART
-<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetPotenciometro
-<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ClearUART
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AtivaMotor
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Wait1ms
-<LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Init
-<LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PLL_Init
+<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Init
+<LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PLL_Init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_entry_main
 </UL>

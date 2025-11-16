@@ -29,6 +29,7 @@ Section Cross References
     main.o(i.ImprimeValores) refers to main.o(i.ImprimeFraseUARTSemClear) for ImprimeFraseUARTSemClear
     main.o(i.ImprimeValores) refers to main.o(i.ImprimeVelocidadeUART) for ImprimeVelocidadeUART
     main.o(i.ImprimeValores) refers to main.o(i.SetUART) for SetUART
+    main.o(i.ImprimeValores) refers to main.o(i.GetPotenciometro) for GetPotenciometro
     main.o(i.ImprimeValores) refers to main.o(.data) for contador
     main.o(i.ImprimeVelocidadeUART) refers to main.o(i.SetUART) for SetUART
     main.o(i.SetEstado) refers to main.o(i.GetUART) for GetUART
@@ -45,12 +46,6 @@ Section Cross References
     main.o(i.main) refers to main.o(i.ImprimeFraseUART) for ImprimeFraseUART
     main.o(i.main) refers to main.o(i.SetEstado) for SetEstado
     main.o(i.main) refers to main.o(i.AtivaMotor) for AtivaMotor
-    main.o(i.main) refers to main.o(i.GetPotenciometro) for GetPotenciometro
-    main.o(i.main) refers to main.o(i.ClearUART) for ClearUART
-    main.o(i.main) refers to rt_memcpy_w.o(.text) for __aeabi_memcpy4
-    main.o(i.main) refers to main.o(i.ImprimeFraseUARTSemClear) for ImprimeFraseUARTSemClear
-    main.o(i.main) refers to main.o(i.ImprimeVelocidadeUART) for ImprimeVelocidadeUART
-    main.o(i.main) refers to main.o(i.SetUART) for SetUART
     main.o(i.main) refers to main.o(.data) for motor
     __main.o(!!!main) refers to __rtentry.o(.ARM.Collect$$rtentry$$00000000) for __rt_entry
     __rtentry.o(.ARM.Collect$$rtentry$$00000000) refers (Special) to __rtentry2.o(.ARM.Collect$$rtentry$$0000000A) for __rt_entry_li
@@ -286,19 +281,19 @@ Image Symbol Table
     i.ImprimeFraseUART                       0x000007c8   Section        0  main.o(i.ImprimeFraseUART)
     i.ImprimeFraseUARTSemClear               0x000007e6   Section        0  main.o(i.ImprimeFraseUARTSemClear)
     i.ImprimeValores                         0x00000800   Section        0  main.o(i.ImprimeValores)
-    i.ImprimeVelocidadeUART                  0x000008c0   Section        0  main.o(i.ImprimeVelocidadeUART)
-    i.PortE_Output                           0x00000908   Section        0  gpio.o(i.PortE_Output)
-    i.PortF_Output                           0x00000924   Section        0  gpio.o(i.PortF_Output)
-    i.SetEstado                              0x00000940   Section        0  main.o(i.SetEstado)
-    i.SetUART                                0x00000b44   Section        0  main.o(i.SetUART)
-    i.Timer1A_Handler                        0x00000b60   Section        0  main.o(i.Timer1A_Handler)
-    i.Timer_Init                             0x00000bf8   Section        0  gpio.o(i.Timer_Init)
-    i.UART_Init                              0x00000c78   Section        0  gpio.o(i.UART_Init)
-    i.main                                   0x00000cbc   Section        0  main.o(i.main)
-    x$fpl$fpinit                             0x00000e10   Section       10  fpinit.o(x$fpl$fpinit)
-    $v0                                      0x00000e10   Number         0  fpinit.o(x$fpl$fpinit)
-    .data                                    0x20000000   Section      276  main.o(.data)
-    .bss                                     0x20000114   Section       96  libspace.o(.bss)
+    i.ImprimeVelocidadeUART                  0x00000944   Section        0  main.o(i.ImprimeVelocidadeUART)
+    i.PortE_Output                           0x0000098c   Section        0  gpio.o(i.PortE_Output)
+    i.PortF_Output                           0x000009a8   Section        0  gpio.o(i.PortF_Output)
+    i.SetEstado                              0x000009c4   Section        0  main.o(i.SetEstado)
+    i.SetUART                                0x00000bfc   Section        0  main.o(i.SetUART)
+    i.Timer1A_Handler                        0x00000c18   Section        0  main.o(i.Timer1A_Handler)
+    i.Timer_Init                             0x00000cb0   Section        0  gpio.o(i.Timer_Init)
+    i.UART_Init                              0x00000d30   Section        0  gpio.o(i.UART_Init)
+    i.main                                   0x00000d74   Section        0  main.o(i.main)
+    x$fpl$fpinit                             0x00000e40   Section       10  fpinit.o(x$fpl$fpinit)
+    $v0                                      0x00000e40   Number         0  fpinit.o(x$fpl$fpinit)
+    .data                                    0x20000000   Section      277  main.o(.data)
+    .bss                                     0x20000118   Section       96  libspace.o(.bss)
     HEAP                                     0x20000178   Section        0  startup.o(HEAP)
     STACK                                    0x20000178   Section     1024  startup.o(STACK)
     HeapMem                                  0x20000178   Data           0  startup.o(HEAP)
@@ -529,21 +524,21 @@ Image Symbol Table
     GetUART                                  0x00000789   Thumb Code    54  main.o(i.GetUART)
     ImprimeFraseUART                         0x000007c9   Thumb Code    30  main.o(i.ImprimeFraseUART)
     ImprimeFraseUARTSemClear                 0x000007e7   Thumb Code    26  main.o(i.ImprimeFraseUARTSemClear)
-    ImprimeValores                           0x00000801   Thumb Code   122  main.o(i.ImprimeValores)
-    ImprimeVelocidadeUART                    0x000008c1   Thumb Code    72  main.o(i.ImprimeVelocidadeUART)
-    PortE_Output                             0x00000909   Thumb Code    18  gpio.o(i.PortE_Output)
-    PortF_Output                             0x00000925   Thumb Code    18  gpio.o(i.PortF_Output)
-    SetEstado                                0x00000941   Thumb Code   504  main.o(i.SetEstado)
-    SetUART                                  0x00000b45   Thumb Code    22  main.o(i.SetUART)
-    Timer1A_Handler                          0x00000b61   Thumb Code   136  main.o(i.Timer1A_Handler)
-    Timer_Init                               0x00000bf9   Thumb Code   104  gpio.o(i.Timer_Init)
-    UART_Init                                0x00000c79   Thumb Code    54  gpio.o(i.UART_Init)
-    main                                     0x00000cbd   Thumb Code   278  main.o(i.main)
-    _fp_init                                 0x00000e11   Thumb Code    10  fpinit.o(x$fpl$fpinit)
-    __fplib_config_fpu_vfp                   0x00000e19   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __fplib_config_pureend_doubles           0x00000e19   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    Region$$Table$$Base                      0x00000e1c   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x00000e3c   Number         0  anon$$obj.o(Region$$Table)
+    ImprimeValores                           0x00000801   Thumb Code   248  main.o(i.ImprimeValores)
+    ImprimeVelocidadeUART                    0x00000945   Thumb Code    72  main.o(i.ImprimeVelocidadeUART)
+    PortE_Output                             0x0000098d   Thumb Code    18  gpio.o(i.PortE_Output)
+    PortF_Output                             0x000009a9   Thumb Code    18  gpio.o(i.PortF_Output)
+    SetEstado                                0x000009c5   Thumb Code   550  main.o(i.SetEstado)
+    SetUART                                  0x00000bfd   Thumb Code    22  main.o(i.SetUART)
+    Timer1A_Handler                          0x00000c19   Thumb Code   136  main.o(i.Timer1A_Handler)
+    Timer_Init                               0x00000cb1   Thumb Code   104  gpio.o(i.Timer_Init)
+    UART_Init                                0x00000d31   Thumb Code    54  gpio.o(i.UART_Init)
+    main                                     0x00000d75   Thumb Code   178  main.o(i.main)
+    _fp_init                                 0x00000e41   Thumb Code    10  fpinit.o(x$fpl$fpinit)
+    __fplib_config_fpu_vfp                   0x00000e49   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __fplib_config_pureend_doubles           0x00000e49   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    Region$$Table$$Base                      0x00000e4c   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x00000e6c   Number         0  anon$$obj.o(Region$$Table)
     motor                                    0x20000000   Data           4  main.o(.data)
     data                                     0x20000004   Data           4  main.o(.data)
     value                                    0x20000008   Data           4  main.o(.data)
@@ -556,8 +551,9 @@ Image Symbol Table
     PWM                                      0x2000010b   Data           1  main.o(.data)
     busy                                     0x2000010c   Data           1  main.o(.data)
     valorPotenciometro                       0x20000110   Data           4  main.o(.data)
-    __libspace_start                         0x20000114   Data          96  libspace.o(.bss)
-    __temporary_stack_top$libspace           0x20000174   Data           0  libspace.o(.bss)
+    isPotenciometro                          0x20000114   Data           1  main.o(.data)
+    __libspace_start                         0x20000118   Data          96  libspace.o(.bss)
+    __temporary_stack_top$libspace           0x20000178   Data           0  libspace.o(.bss)
 
 
 
@@ -567,9 +563,9 @@ Memory Map of the image
 
   Image Entry point : 0x00000209
 
-  Load Region LR_1 (Base: 0x00000000, Size: 0x00000f50, Max: 0xffffffff, ABSOLUTE)
+  Load Region LR_1 (Base: 0x00000000, Size: 0x00000f84, Max: 0xffffffff, ABSOLUTE)
 
-    Execution Region ER_RO (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00000e3c, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RO (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00000e6c, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -643,34 +639,33 @@ Memory Map of the image
     0x00000788   0x00000788   0x00000040   Code   RO           19    i.GetUART           main.o
     0x000007c8   0x000007c8   0x0000001e   Code   RO           20    i.ImprimeFraseUART  main.o
     0x000007e6   0x000007e6   0x0000001a   Code   RO           21    i.ImprimeFraseUARTSemClear  main.o
-    0x00000800   0x00000800   0x000000c0   Code   RO           22    i.ImprimeValores    main.o
-    0x000008c0   0x000008c0   0x00000048   Code   RO           23    i.ImprimeVelocidadeUART  main.o
-    0x00000908   0x00000908   0x0000001c   Code   RO          111    i.PortE_Output      gpio.o
-    0x00000924   0x00000924   0x0000001c   Code   RO          112    i.PortF_Output      gpio.o
-    0x00000940   0x00000940   0x00000204   Code   RO           24    i.SetEstado         main.o
-    0x00000b44   0x00000b44   0x0000001c   Code   RO           25    i.SetUART           main.o
-    0x00000b60   0x00000b60   0x00000098   Code   RO           26    i.Timer1A_Handler   main.o
-    0x00000bf8   0x00000bf8   0x00000080   Code   RO          113    i.Timer_Init        gpio.o
-    0x00000c78   0x00000c78   0x00000044   Code   RO          114    i.UART_Init         gpio.o
-    0x00000cbc   0x00000cbc   0x00000154   Code   RO           27    i.main              main.o
-    0x00000e10   0x00000e10   0x0000000a   Code   RO          244    x$fpl$fpinit        fz_wm.l(fpinit.o)
-    0x00000e1a   0x00000e1a   0x00000002   PAD
-    0x00000e1c   0x00000e1c   0x00000020   Data   RO          314    Region$$Table       anon$$obj.o
+    0x00000800   0x00000800   0x00000144   Code   RO           22    i.ImprimeValores    main.o
+    0x00000944   0x00000944   0x00000048   Code   RO           23    i.ImprimeVelocidadeUART  main.o
+    0x0000098c   0x0000098c   0x0000001c   Code   RO          111    i.PortE_Output      gpio.o
+    0x000009a8   0x000009a8   0x0000001c   Code   RO          112    i.PortF_Output      gpio.o
+    0x000009c4   0x000009c4   0x00000238   Code   RO           24    i.SetEstado         main.o
+    0x00000bfc   0x00000bfc   0x0000001c   Code   RO           25    i.SetUART           main.o
+    0x00000c18   0x00000c18   0x00000098   Code   RO           26    i.Timer1A_Handler   main.o
+    0x00000cb0   0x00000cb0   0x00000080   Code   RO          113    i.Timer_Init        gpio.o
+    0x00000d30   0x00000d30   0x00000044   Code   RO          114    i.UART_Init         gpio.o
+    0x00000d74   0x00000d74   0x000000cc   Code   RO           27    i.main              main.o
+    0x00000e40   0x00000e40   0x0000000a   Code   RO          244    x$fpl$fpinit        fz_wm.l(fpinit.o)
+    0x00000e4a   0x00000e4a   0x00000002   PAD
+    0x00000e4c   0x00000e4c   0x00000020   Data   RO          314    Region$$Table       anon$$obj.o
 
 
-    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x00000e3c, Size: 0x00000114, Max: 0xffffffff, ABSOLUTE)
-
-    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
-
-    0x20000000   0x00000e3c   0x00000114   Data   RW           28    .data               main.o
-
-
-    Execution Region ER_ZI (Exec base: 0x20000114, Load base: 0x00000f50, Size: 0x00000464, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x00000e6c, Size: 0x00000118, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000114        -       0x00000060   Zero   RW          186    .bss                c_w.l(libspace.o)
-    0x20000174   0x00000f50   0x00000004   PAD
+    0x20000000   0x00000e6c   0x00000115   Data   RW           28    .data               main.o
+
+
+    Execution Region ER_ZI (Exec base: 0x20000118, Load base: 0x00000f84, Size: 0x00000460, Max: 0xffffffff, ABSOLUTE)
+
+    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x20000118        -       0x00000060   Zero   RW          186    .bss                c_w.l(libspace.o)
     0x20000178        -       0x00000000   Zero   RW            2    HEAP                startup.o
     0x20000178        -       0x00000400   Zero   RW            1    STACK               startup.o
 
@@ -683,14 +678,14 @@ Image component sizes
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
        488        108          0          0          0       3086   gpio.o
-      1636        226          0        276          0      13932   main.o
+      1684        200          0        277          0      14072   main.o
        608        532          0          0       1024       1000   startup.o
        484         92          0          0          0        360   utils.o
 
     ----------------------------------------------------------------------
-      3216        958         32        276       1024      18378   Object Totals
+      3264        932         32        280       1024      18518   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-         0          0          0          0          0          0   (incl. Padding)
+         0          0          0          3          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -720,8 +715,8 @@ Image component sizes
         10          0          0          0          0        116   fpinit.o
 
     ----------------------------------------------------------------------
-       396         16          0          0        100        780   Library Totals
-        10          0          0          0          4          0   (incl. Padding)
+       396         16          0          0         96        780   Library Totals
+        10          0          0          0          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -731,7 +726,7 @@ Image component sizes
         10          0          0          0          0        116   fz_wm.l
 
     ----------------------------------------------------------------------
-       396         16          0          0        100        780   Library Totals
+       396         16          0          0         96        780   Library Totals
 
     ----------------------------------------------------------------------
 
@@ -740,15 +735,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      3612        974         32        276       1124      17450   Grand Totals
-      3612        974         32        276       1124      17450   ELF Image Totals
-      3612        974         32        276          0          0   ROM Totals
+      3660        948         32        280       1120      17590   Grand Totals
+      3660        948         32        280       1120      17590   ELF Image Totals
+      3660        948         32        280          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                 3644 (   3.56kB)
+    Total RO  Size (Code + RO Data)                 3692 (   3.61kB)
     Total RW  Size (RW Data + ZI Data)              1400 (   1.37kB)
-    Total ROM Size (Code + RO Data + RW Data)       3920 (   3.83kB)
+    Total ROM Size (Code + RO Data + RW Data)       3972 (   3.88kB)
 
 ==============================================================================
 

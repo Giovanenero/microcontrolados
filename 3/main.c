@@ -28,9 +28,7 @@ typedef enum estMotor
 	MODO_SENTIDO,
 	MODO_VELOCIDADE,
 	MOTOR_LIGADO_TERMINAL,
-	MOTOR_LIGADO_POTENCIOMETRO,
-	CONTROLE_POTENCIOMETRO,
-	CONTROLE_TERMINAL,
+	MOTOR_LIGADO_POTENCIOMETRO
 } estadosMotor;
 
 typedef struct motor
@@ -73,6 +71,7 @@ uint8_t PWM = 0;
 uint8_t busy = 0;
 uint32_t valorPotenciometro = 0;
 uint32_t GetPotenciometro(void);
+uint8_t isPotenciometro = 0;
 
 int main(void)
 {
@@ -80,8 +79,8 @@ int main(void)
 	SysTick_Init();
 	GPIO_Init(); // inicia as portas
 	UART_Init(); // inicia o UART
-	ADC_Init();
-	Timer_Init();
+	ADC_Init(); // inicia o ADC
+	Timer_Init(); // inicia o timer
 
 	SysTick_Wait1ms(1000);
 	
@@ -108,15 +107,6 @@ int main(void)
 				SetEstado();
 				break;
 			
-			case CONTROLE_TERMINAL:
-				if(Flag == 0)
-				{
-					//ImprimeFraseUART();
-					Flag = 1;
-				}
-				SetEstado();
-				break;
-			
 			case MODO_SENTIDO:
 				if(Flag == 0)
 				{
@@ -135,34 +125,14 @@ int main(void)
 				SetEstado();
 				break;
 			
-			case CONTROLE_POTENCIOMETRO:
-				ImprimeFraseUART(INICIAL_MSG);
-				break;
-			
 			case MOTOR_LIGADO_TERMINAL:
 				AtivaMotor();
-				//ImprimeValores();
 				SetEstado();
 				break;
 			
 			case MOTOR_LIGADO_POTENCIOMETRO:
-				if (GetPotenciometro())
-				{
-						// converte o ADC (0–4095) para 0–100 %
-						uint32_t velocidadePot = (valorPotenciometro * 100) / 4095;
-
-						ClearUART();
-
-						uint8_t msgADC[] = "Valor ADC: ";
-						uint8_t msgVel[] = "  Velocidade (%): ";
-
-						ImprimeFraseUARTSemClear(msgADC);
-						ImprimeVelocidadeUART(valorPotenciometro);
-
-						ImprimeFraseUARTSemClear(msgVel);
-						ImprimeVelocidadeUART(velocidadePot);
-						SetUART('%');
-				}
+				AtivaMotor();
+				SetEstado();
 				break;
 		}
 	}
@@ -274,6 +244,7 @@ void SetEstado()
 			motor.modo = 1;
 			motor.velocidade = 0;
 			motor.estado = MOTOR_LIGADO_POTENCIOMETRO;
+			isPotenciometro = 1;
 			Flag = 0;
 		}
 	}
@@ -390,7 +361,18 @@ void SetEstado()
 	
 	else if(motor.estado == MOTOR_LIGADO_POTENCIOMETRO)
 	{
-	
+		if(value == 's')
+		{
+			DesativaMotor();
+			motor.velocidade = 0;
+			motor.estado = INICIAL;
+			Flag = 0;
+			isPotenciometro = 0;
+		}
+		else
+		{
+			ImprimeValores();
+		}
 	}
 }
 
@@ -406,18 +388,58 @@ void ImprimeValores(void)
 		uint8_t Velocidade[] = "Velocidade: ";
 		
 		ClearUART();
-		if(motor.sentido == 0)
+		if(!isPotenciometro) // Modo terminal
 		{
-			ImprimeFraseUARTSemClear(SentidoHorario);
-		}
-		else if(motor.sentido == 1)
-		{
-			ImprimeFraseUARTSemClear(SentidoAntiHorario);
+			if(motor.sentido == 0)
+			{
+				ImprimeFraseUARTSemClear(SentidoHorario);
+			}
+			else if(motor.sentido == 1)
+			{
+				ImprimeFraseUARTSemClear(SentidoAntiHorario);
+			}
+			
+			ImprimeFraseUARTSemClear(Velocidade);
+			ImprimeVelocidadeUART(motor.velocidade);
+			SetUART('%');
 		}
 		
-		ImprimeFraseUARTSemClear(Velocidade);
-		ImprimeVelocidadeUART(motor.velocidade);
-		SetUART('%');
+		else // Modo potenciometro
+		{
+			GetPotenciometro();
+			
+			ImprimeVelocidadeUART(valorPotenciometro);
+			SetUART(' ');
+			
+			// A partir do valor lido do ADC converte em % para a velocidade
+			
+			if(valorPotenciometro <= 4096/2) // 0V (100%) a 1,65V (0%), sentido horario (motor.sentido = 0)
+			{
+				motor.sentido = 0;
+				ImprimeFraseUARTSemClear(SentidoHorario);
+				
+				uint32_t dif = 2048u - valorPotenciometro; // 0 a 2048
+				uint32_t velocidadePot = (dif * 100u) / 2048u;
+				
+				motor.velocidade = velocidadePot;
+			}
+			else // 1,65V (0%) a 3,3V (100%), sentido anti-horario (motor.sentido = 1)
+			{
+				motor.sentido = 1;
+				ImprimeFraseUARTSemClear(SentidoAntiHorario);
+				
+				uint32_t dif  = valorPotenciometro - 2048; // 2048 a 4096
+				uint32_t metadeSuperior = 4095u - 2048u;
+				uint32_t velocidadePot = (dif * 100u) / metadeSuperior;
+
+				motor.velocidade = velocidadePot;	
+			}
+			
+			ImprimeFraseUARTSemClear(Velocidade);
+			ImprimeVelocidadeUART(motor.velocidade);
+			SetUART('%');
+		}
+		
 		contador = 0;
 	}
 }

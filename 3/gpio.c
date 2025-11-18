@@ -75,9 +75,7 @@ void UART_Init(void) {
 
 void Timer_Init(void) {
 	SYSCTL_RCGCTIMER_R |= 0x02;
-	while ((SYSCTL_PRTIMER_R & 0x02) == 0) {
-		
-	}
+	while ((SYSCTL_PRTIMER_R & 0x02) == 0) {}
 
 	TIMER1_CTL_R &= ~(0x01u);
 	TIMER1_CFG_R &= ~(0x07u);
@@ -93,9 +91,7 @@ void Timer_Init(void) {
 void ADC_Init(void) {
 	uint32_t adc0 = SYSCTL_RCGCADC_R0;
 	SYSCTL_RCGCADC_R = adc0;
-	while ( (SYSCTL_PRADC_R & adc0) != adc0 ) {
-		
-	}
+	while ( (SYSCTL_PRADC_R & adc0) != adc0 ) {}
 	
 	ADC0_PC_R = 0x07;
 	ADC0_SSPRI_R = (0 << 12) | (1 << 8) | (2 << 4) | 3;
@@ -107,24 +103,16 @@ void ADC_Init(void) {
 }
 
 void PortE_Output(uint32_t valor) {
-    uint32_t temp;
-		//vamos zerar somente os bits menos significativos
-    //para uma escrita amigável nos bits 0 e 1
-		temp = GPIO_PORTE_AHB_DATA_R & 0x03;
-		//agora vamos fazer o OR com o valor recebido na função
-	  temp = temp | valor;
-    GPIO_PORTE_AHB_DATA_R = temp; 
+	uint32_t temp;
+	temp = GPIO_PORTE_AHB_DATA_R & ~0x03u;
+	temp |= (valor & 0x03u);
+	GPIO_PORTE_AHB_DATA_R = temp;
 }
 
 void PortF_Output(uint32_t valor)
 {
-    uint32_t temp;
-    //vamos zerar somente os bits menos significativos
-    //para uma escrita amigável nos bits 0 e 1
-    temp = GPIO_PORTF_AHB_DATA_R & 0x04;
-    //agora vamos fazer o OR com o valor recebido na função
-    temp = temp | valor;
-    GPIO_PORTF_AHB_DATA_R = temp; 
+	uint32_t temp;
+	temp = GPIO_PORTF_AHB_DATA_R & ~0x04u;
+	temp |= (valor & 0x04u);
+	GPIO_PORTF_AHB_DATA_R = temp;
 }
-
-

@@ -66,12 +66,16 @@ uint8_t Flag = 0;
 void AtivaMotor(void);
 void DesativaMotor(void);
 uint8_t PWM = 0;
+uint8_t motorAtivo = 0;
 
 // Potenciometro
 uint8_t busy = 0;
 uint32_t valorPotenciometro = 0;
 uint32_t GetPotenciometro(void);
 uint8_t isPotenciometro = 0;
+
+uint16_t inicioVelocidade = 0;
+uint16_t velocidadeEscolhida = 0;
 
 int main(void)
 {
@@ -126,12 +130,20 @@ int main(void)
 				break;
 			
 			case MOTOR_LIGADO_TERMINAL:
-				AtivaMotor();
+				if(!motorAtivo)
+				{
+					AtivaMotor();				
+					motorAtivo = 1;
+				}
 				SetEstado();
 				break;
 			
 			case MOTOR_LIGADO_POTENCIOMETRO:
-				AtivaMotor();
+				if(!motorAtivo)
+				{
+					AtivaMotor();
+					motorAtivo = 1;
+				}
 				SetEstado();
 				break;
 		}
@@ -204,7 +216,6 @@ void ImprimeVelocidadeUART(uint32_t num)
         SetUART(buffer[--i]);
     }
 }
-
 
 void ClearUART(void)
 {
@@ -458,10 +469,10 @@ void AtivaMotor(void)
 
 void DesativaMotor(void)
 {
+	motorAtivo = 0;
 	PortF_Output(0x00); // desativa motor
 	TIMER1_CTL_R &= ~(0x01);
 }
-
 
 void Timer1A_Handler(void) 
 {

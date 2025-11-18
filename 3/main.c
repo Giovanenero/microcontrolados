@@ -412,14 +412,13 @@ void ImprimeValores(void)
 			SetUART(' ');
 			
 			// A partir do valor lido do ADC converte em % para a velocidade
-			
 			if(valorPotenciometro <= 4096/2) // 0V (100%) a 1,65V (0%), sentido horario (motor.sentido = 0)
 			{
 				motor.sentido = 0;
 				ImprimeFraseUARTSemClear(SentidoHorario);
 				
-				uint32_t dif = 2048u - valorPotenciometro; // 0 a 2048
-				uint32_t velocidadePot = (dif * 100u) / 2048u;
+				uint32_t dif = 2048 - valorPotenciometro; // 0 a 2048
+				uint32_t velocidadePot = (dif * 100) / 2048;
 				
 				motor.velocidade = velocidadePot;
 			}
@@ -429,8 +428,8 @@ void ImprimeValores(void)
 				ImprimeFraseUARTSemClear(SentidoAntiHorario);
 				
 				uint32_t dif  = valorPotenciometro - 2048; // 2048 a 4096
-				uint32_t metadeSuperior = 4095u - 2048u;
-				uint32_t velocidadePot = (dif * 100u) / metadeSuperior;
+				uint32_t metadeSuperior = 4095 - 2048;
+				uint32_t velocidadePot = (dif * 100) / metadeSuperior;
 
 				motor.velocidade = velocidadePot;	
 			}

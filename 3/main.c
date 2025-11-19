@@ -67,6 +67,10 @@ void AtivaMotor(void);
 void DesativaMotor(void);
 uint8_t PWM = 0;
 uint8_t motorAtivo = 0;
+uint8_t velocidadeAtual = 0;
+uint8_t velocidadeAlvo = 0;
+uint16_t contadorAceleracao = 0;
+uint8_t motorSentidoAnterior = 0;
 
 // Potenciometro
 uint8_t busy = 0;
@@ -205,13 +209,12 @@ void ImprimeVelocidadeUART(uint32_t num)
         return;
     }
 
-    // monta o n˙mero ao contr·rio no buffer
+	// Pega os valores invertidos
     while (num > 0 && i < 10) {
-        buffer[i++] = (num % 10) + '0';  // pega o ˙ltimo dÌgito
+        buffer[i++] = (num % 10) + '0';
         num /= 10;
     }
 
-    // imprime na ordem certa
     while (i > 0) {
         SetUART(buffer[--i]);
     }
@@ -223,8 +226,8 @@ void ClearUART(void)
 	uint8_t clearSeq[] = "\033[2J\033[H"; //  \033[2J = ESC e limpa a tela, \033[2H = move o cursor para o inicio da linha 
 	
 	while (clearSeq[i] != '\0') {
-			SetUART(clearSeq[i]);
-			i++;
+		SetUART(clearSeq[i]);
+		i++;
 	}
 }
 
@@ -477,13 +480,34 @@ void DesativaMotor(void)
 void Timer1A_Handler(void) 
 {
 	uint32_t contador = 0;
-	
-	if (motor.velocidade == 0) 
+	velocidadeAlvo = motor.velocidade;
+	contadorAceleracao += 2;
+
+	// Rampa linear
+    if (contadorAceleracao >= 250) 
+    {
+        contadorAceleracao = 0;
+        if (motor.sentido != motorSentidoAnterior && velocidadeAtual > 0)
+        {
+            velocidadeAtual--;  // desacelera at√© parar
+        }
+        else if (velocidadeAtual < velocidadeAlvo) 
+        {
+            velocidadeAtual++;  // acelera
+        } 
+        else if (velocidadeAtual > velocidadeAlvo) 
+        {
+            velocidadeAtual--;  // desacelera
+        }
+    }
+
+	if (velocidadeAtual == 0) 
 	{
 		PWM = 0;
 		contador = 100 * CLK;
+		motorSentidoAnterior = motor.sentido;
 	} 
-	else if (motor.velocidade == 100) 
+	else if (velocidadeAtual == 100) 
 	{
 		PWM = 1;
 		contador = 100 * CLK;
@@ -493,12 +517,12 @@ void Timer1A_Handler(void)
 		if (PWM == 0) 
 		{
 			PWM = 1;
-			contador = motor.velocidade * CLK;
+			contador = velocidadeAtual * CLK;
 		} 
 		else 
 		{
 			PWM = 0;
-			contador = (100 - motor.velocidade) * CLK;
+			contador = (100 - velocidadeAtual) * CLK;
 		}
 	}
 
@@ -518,12 +542,14 @@ void Timer1A_Handler(void)
 
 uint32_t GetPotenciometro(void)
 {
+	//ADC ocupado
 	if (!busy) 
 	{
 		ADC0_PSSI_R = 8;
 		busy = 1;
 	}
 	
+	// Conversao em andamento
 	if (ADC0_RIS_R != 8) 
 	{
 		return 0;
@@ -533,6 +559,7 @@ uint32_t GetPotenciometro(void)
 	uint32_t valor = ADC0_SSFIFO3_R;
 	ADC0_ISC_R = 8;
 	
+	// Ignora pequenas variacoes (ruido)
 	if (valor - valorPotenciometro < 20) 
 	{
 		return 0;

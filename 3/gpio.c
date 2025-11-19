@@ -15,19 +15,19 @@
 void SysTick_Wait1ms(uint32_t delay);
 
 // -------------------------------------------------------------------------------
-// Função GPIO_Init
+// Funï¿½ï¿½o GPIO_Init
 // Inicializa os ports F, J e N
-// Parâmetro de entrada: Não tem
-// Parâmetro de saída: Não tem
+// Parï¿½metro de entrada: Nï¿½o tem
+// Parï¿½metro de saï¿½da: Nï¿½o tem
 void GPIO_Init(void)
 {
 	//1a. Ativar o clock para a porta setando o bit correspondente no registrador RCGCGPIO
 	SYSCTL_RCGCGPIO_R = (GPIO_PORTA | GPIO_PORTE | GPIO_PORTF);
 	
-	//1b.   após isso verificar no PRGPIO se a porta está pronta para uso.
+	//1b.   apï¿½s isso verificar no PRGPIO se a porta estï¿½ pronta para uso.
   while((SYSCTL_PRGPIO_R & (GPIO_PORTA | GPIO_PORTE | GPIO_PORTF) ) != (GPIO_PORTA | GPIO_PORTE | GPIO_PORTF) ){};
 		
-	// 2. Limpar o AMSEL para desabilitar a analógica
+	// 2. Limpar o AMSEL para desabilitar a analï¿½gica
 	GPIO_PORTA_AHB_AMSEL_R = 0x00;
 	GPIO_PORTE_AHB_AMSEL_R = 0x10;
 	GPIO_PORTF_AHB_AMSEL_R = 0x00;
@@ -37,12 +37,12 @@ void GPIO_Init(void)
 	GPIO_PORTE_AHB_PCTL_R = 0x00;
 	GPIO_PORTF_AHB_PCTL_R = 0x00;
 
-	// 4. DIR para 0 se for entrada, 1 se for saída
+	// 4. DIR para 0 se for entrada, 1 se for saï¿½da
 	GPIO_PORTA_AHB_DIR_R = 0xF0;
 	GPIO_PORTE_AHB_DIR_R = 0x03;
 	GPIO_PORTF_AHB_DIR_R = 0x04;
 		
-	// 5. Limpar os bits AFSEL para 0 para selecionar GPIO sem função alternativa
+	// 5. Limpar os bits AFSEL para 0 para selecionar GPIO sem funï¿½ï¿½o alternativa
 	GPIO_PORTA_AHB_AFSEL_R = 0x03;
 	GPIO_PORTE_AHB_AFSEL_R = 0x10;
 	GPIO_PORTF_AHB_AFSEL_R = 0x00;
@@ -74,17 +74,31 @@ void UART_Init(void) {
 }
 
 void Timer_Init(void) {
+	// Habilita clock para Timer1
 	SYSCTL_RCGCTIMER_R |= 0x02;
 	while ((SYSCTL_PRTIMER_R & 0x02) == 0) {}
 
+	// Desabilita Timer1 para configurar
 	TIMER1_CTL_R &= ~(0x01u);
 	TIMER1_CFG_R &= ~(0x07u);
 	TIMER1_TAMR_R = (TIMER1_TAMR_R & ~(0x03u)) | 0x02;
+
+	// Define 80.000 ciclos = 1ms
 	TIMER1_TAILR_R = 80000;
+
+	// Configura prescaler
 	TIMER1_TAPR_R = 0;
+
+	// Limpar flag de interrupt
 	TIMER1_ICR_R |= 0x01;
+
+	// Habilita interrupt do Timer1
 	TIMER1_IMR_R |= 0x01;
+
+	// Configura prioridade da interrupcao
 	NVIC_PRI5_R = 4u << 13;
+
+	// Habilita interrupcao
 	NVIC_EN0_R = 1u << 21;
 }
 
